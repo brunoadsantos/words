@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#5c2000">
+  <link rel="icon" href="/img/icon-192x192.png">
+
+  <script defer src="/js/main.js" type="text/javascript"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+
+  <title>Bento e Capitu</title>
+
+  <style>
+    :root {
+      --bg: #FFEBC1;
+      --primary: #5c2000ee;
+      --banner: #91422533;
+      --correct: #5c2000cc;
+      --wrong: #c2976233;
+      --misplaced: #91422566;
+      --button-bg: #ffffff33;
+      --letter-bg: #c2976233;
+      --letter-fg: #5c2000;
+      --white: #fff;
+    }
+
+    body {
+      background-image: url(/img/bg.png);
+      font-family: "EB Garamond";
+      font-weight: 700;
+    }
+
+    a {
+      text-decoration: none;
+      color: var(--primary);
+    }
+
+    h1 {
+      color: var(--primary);
+      text-align: center;
+    }
+
+    button {
+      background: none;
+      border: none;
+      margin: 0;
+      padding: 0;
+      display: inline-block;
+    }
+
+    button>span {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 2em;
+      min-width: 1em;
+      font-size: 0.8em;
+      font-family: "Rubik";
+      padding: 6pt;
+      border-radius: 8pt;
+      margin: 3pt;
+      color: var(--primary);
+      background-color: var(--button-bg);
+      box-shadow: 1px 1px 2px var(--primary);
+    }
+
+    button:active>span {
+      box-shadow: 1px -1px 2px var(--primary);
+    }
+
+    button>span.control {
+      padding-left: 12pt;
+      padding-right: 12pt;
+    }
+
+    .centered-div {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .game-over-banner {
+      background-color: var(--banner);
+      padding: 8pt;
+      border-radius: 8pt;
+      color: var(--letter-fg);
+    }
+
+    .letter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--letter-bg);
+      color: var(--letter-fg);
+      height: 3em;
+      width: 2.5em;
+      font-size: 1em;
+      border-radius: 8pt;
+      margin: 2pt;
+      box-sizing: border-box;
+    }
+
+    .letter.current-row {
+      border: 2pt solid var(--primary);
+    }
+
+    .letter.current-letter {
+      border-bottom: 4pt solid var(--primary);
+    }
+
+    .correct {
+      background-color: var(--correct);
+      color: var(--white);
+    }
+
+    @keyframes reveal-correct {
+      0% {
+        transform: rotateX(0deg);
+        background-color: var(--letter-bg);
+        color: var(--letter-fg);
+      }
+
+      50% {
+        transform: rotateX(90deg);
+        background-color: var(--letter-bg);
+        color: var(--letter-fg);
+      }
+
+      51% {
+        transform: rotateX(90deg);
+        background-color: var(--correct);
+        color: var(--white);
+      }
+
+      100% {
+        transform: rotateX(0deg);
+        background-color: var(--correct);
+        color: var(--white);
+      }
+    }
+
+    .reveal-correct {
+      animation-duration: 500ms;
+      animation-name: reveal-correct;
+      animation-iteration-count: 1;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+
+    .wrong {
+      background-color: var(--wrong);
+      color: var(--letter-fg);
+    }
+
+    @keyframes reveal-wrong {
+      0% {
+        transform: rotateX(0deg);
+        background-color: var(--letter-bg);
+      }
+
+      50% {
+        transform: rotateX(90deg);
+        background-color: var(--letter-bg);
+      }
+
+      51% {
+        transform: rotateX(90deg);
+        background-color: var(--wrong);
+      }
+
+      100% {
+        transform: rotateX(0deg);
+        background-color: var(--wrong);
+      }
+    }
+
+    .reveal-wrong {
+      animation-duration: 500ms;
+      animation-name: reveal-wrong;
+      animation-iteration-count: 1;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+
+    .misplaced {
+      background-color: var(--misplaced);
+      color: var(--letter-fg);
+    }
+
+    @keyframes reveal-misplaced {
+      0% {
+        transform: rotateX(0deg);
+        background-color: var(--letter-bg);
+      }
+
+      50% {
+        transform: rotateX(90deg);
+        background-color: var(--letter-bg);
+      }
+
+      51% {
+        transform: rotateX(90deg);
+        background-color: var(--misplaced);
+      }
+
+      100% {
+        transform: rotateX(0deg);
+        background-color: var(--misplaced);
+      }
+    }
+
+    .reveal-misplaced {
+      animation-duration: 500ms;
+      animation-name: reveal-misplaced;
+      animation-iteration-count: 1;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes reject-attempt {
+      0% {
+        transform: translateX(0pt);
+      }
+
+      25% {
+        transform: translateX(16pt);
+      }
+
+      50% {
+        transform: translateX(-16pt);
+      }
+
+      100% {
+        transform: translateX(0pt);
+      }
+    }
+
+    .reject-attempt {
+      animation-duration: 250ms;
+      animation-name: reject-attempt;
+      animation-iteration-count: 1;
+      animation-timing-function: ease;
+    }
+
+    @keyframes last-added-letter {
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(1.15);
+      }
+    }
+
+    .last-added-letter {
+      animation-duration: 100ms;
+      animation-name: last-added-letter;
+      animation-iteration-count: 1;
+      animation-timing-function: ease-out;
+    }
+  </style>
+
+</head>
+
+<body id="body">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+
+  <div id="app"></div>
+</body>
+
+</html>
