@@ -1,5 +1,5 @@
 ;; shadow-cljs configuration
-{:deps {:aliases [:cljs]}
+{:deps true
 
  :builds
  {:app {:target :browser
