@@ -35,7 +35,7 @@
     body {
       background-image: url(/img/bg.png);
       font-family: "EB Garamond";
-      font-weight: 700;
+      user-select: none;
     }
 
     a {
@@ -83,6 +83,21 @@
       padding-right: 12pt;
     }
 
+    div.bar {
+      display: inline-block;
+      margin: 4pt;
+    }
+
+    div.bar>div {
+      display: inline-block;
+      position:relative;
+      padding: 6pt;
+      text-align: right;
+      border-radius: 4pt;
+      color: var(--letter-fg);
+      background-color: var(--banner);
+    }
+
     .overlay {
       height: 100%;
       width: 100%;
@@ -98,8 +113,7 @@
     .overlay-content {
       color: #000;
       position: relative;
-      text-align: center;
-      padding: 8pt;
+      padding: 0 16pt 0 16pt;
     }
 
     .overlay .close-btn {
@@ -116,6 +130,7 @@
     }
 
     .game-over-banner {
+      font-weight: 700;
       background-color: var(--banner);
       padding: 8pt;
       border-radius: 8pt;
@@ -123,7 +138,7 @@
     }
 
     .letter {
-      user-select: none;
+      font-weight: 700;
       display: flex;
       justify-content: center;
       align-items: center;

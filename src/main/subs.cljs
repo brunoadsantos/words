@@ -37,6 +37,11 @@
    (select-keys db [:game-over? :success?])))
 
 (rf/reg-sub
+ :stats
+ (fn [db _]
+   (:stats db)))
+
+(rf/reg-sub
  :used-letters
  (fn [db _]
    (-> db (select-keys [:correct-letters :wrong-letters :misplaced-letters]))))

@@ -64,8 +64,12 @@
         game-over? (or success? (= max-attempts attempt-number))]
     (-> db
         (assoc :game-over? game-over?)
-        (cond-> game-over? (update :attempt-number dec)
-                (not success?) (assoc :final-answer (get-word db answer))))))
+        (cond-> game-over?
+          (-> (update :attempt-number dec)
+              (update-in [:stats :total-games-played] (fnil inc 0))
+              (cond-> success? (update-in [:stats :attempts-to-win attempt-number] (fnil inc 0))
+                      success? (update-in [:stats :total-wins] (fnil inc 0))
+                      (not success?) (assoc :final-answer (get-word db answer))))))))
 
 (defn get-used-letters-from-current-attempt [db]
   (let [attempt-number (-> db :attempt-number)

@@ -13,8 +13,10 @@
   (rf/inject-cofx :saved-game-state)]
  (fn [{:keys [db game-mode-from-url saved-game-state]} [_ {:keys [game-mode force-new?]}]]
    (let [game-mode (or game-mode (:game-mode db) game-mode-from-url)
-         new-game (db/new-game {:game-mode game-mode
-                                :game-state (when-not force-new? (get saved-game-state game-mode))})]
+         game-state (get saved-game-state game-mode)
+         new-game (merge (db/new-game {:game-mode game-mode
+                                       :game-state (when-not force-new? game-state)})
+                         (select-keys game-state [:stats]))]
      {:db new-game
       :save-game-state {:game-mode game-mode
                         :game-state (persistable-state new-game)}})))

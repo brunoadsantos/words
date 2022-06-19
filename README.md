@@ -1,3 +1,7 @@
+## Live
+
+https://bento-capitu.netlify.app/
+
 ## Gerar lista de palavras em Português
 
 ```
