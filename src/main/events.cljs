@@ -5,7 +5,7 @@
    [re-frame.core :as rf]))
 
 (defn persistable-state [db]
-  (dissoc db :word-map :valid-attempts :game-mode))
+  (dissoc db :word-map :valid-attempts :game-mode :overlays))
 
 (rf/reg-event-fx
  :new-game
@@ -58,3 +58,8 @@
                                     :attempt (get-in db [:attempts attempt-number :attempt])}}))
        :delete {:db (l/pop-from-current-attempt db)}
        {:db (l/push-to-current-attempt db k)}))))
+
+(rf/reg-event-db
+ :set-overlay-shown
+ (fn [db [_ overlay-id shown?]]
+   (assoc-in db [:overlays overlay-id] shown?)))

@@ -64,3 +64,8 @@
      (if (seq letter-results)
        letter-results
        (repeat answer-size :unchecked)))))
+
+(rf/reg-sub
+ :overlay-shown?
+ (fn [db [_ overlay-id]]
+   (get-in db [:overlays overlay-id])))

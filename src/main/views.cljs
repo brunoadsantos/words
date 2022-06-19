@@ -65,19 +65,19 @@
      [button-row ["Z" "X" "C" "V" "B" "N" "M"] used-letters]
 
      [:div.centered-div
-      [:button {:on-click #(rf/dispatch [:key-input :delete])
-                :disabled revealing?}
-       [:span.control
-        [icon :backspace]]]
-      [:button {:on-click #(rf/dispatch [:key-input :check])
-                :disabled revealing?}
-       [:span.control
-        [icon :done]]]
-
-      (when game-over?
+      (if game-over?
         [:button {:on-click #(rf/dispatch [:new-game {:force-new? true}])}
          [:span.control
-          [icon :refresh]]])]]))
+          [icon :refresh]]]
+        [:<>
+         [:button {:on-click #(rf/dispatch [:key-input :delete])
+                   :disabled revealing?}
+          [:span.control
+           [icon :backspace]]]
+         [:button {:on-click #(rf/dispatch [:key-input :check])
+                   :disabled revealing?}
+          [:span.control
+           [icon :done]]]])]]))
 
 (defn title []
   (let [revealing? @(rf/subscribe [:revealing?])
@@ -112,8 +112,43 @@
           "Ufa!")
         (str "Resposta: " final-answer))]]))
 
+(defn indicator-line [line]
+  [:div {:style {:min-width "60%"
+                 :text-align :left
+                 :margin-left "8pt"}}
+   line])
+
+(defn overlay []
+  (let [shown? @(rf/subscribe [:overlay-shown? :instructions])]
+    [:div.overlay {:style {:left (if shown? "0%" "-110%")}}
+     [:div.overlay-content
+      [:h1 "Bento & Capitu"]
+      [:p "Você tem 6 tentativas para adivinhar uma palavra aleatória retirada do livro " [:em "Dom Casmurro"]
+       ", de Machado de Assis. Cada tentativa indicará:"]
+      [:div.centered-div
+       [:div.letter.correct "A"]
+       [indicator-line "Letra na posição correta"]]
+      [:div.centered-div
+       [:div.letter.misplaced "A"]
+       [indicator-line "Letra na posição incorreta"]]
+      [:div.centered-div
+       [:div.letter.wrong "A"]
+       [indicator-line "Letra não faz parte da palavra"]]
+      [:p "No modo " [:em "Bento"] ", as palavras têm 5 letras e as tentativas são palavras em geral."]
+      [:p "No modo " [:em "Capitu"] ", as palavras têm 6 letras e as tentativas são restritas às palavras que aparecem no livro " [:em "Dom Casmurro"] "."]
+      [:p "Toque ou clique no título da página para alternar entre os modos. O progresso em cada um deles é mantido."]
+      [:p [:a {:href "https://github.com/brunoadsantos/words"} "Código no GitHub"]]
+      [:p [:a {:href "https://machado.mec.gov.br/obra-completa-lista/itemlist/category/23-romance"}
+           "Obra de Machado de Assis em domínio público"]]]
+     [:button.close-btn {:on-click #(rf/dispatch [:set-overlay-shown :instructions false])}
+      [:div [icon "close"]]]]))
+
 (defn body []
   [:div
+   [overlay]
+   [:button {:style {:position :absolute}
+             :on-click #(rf/dispatch [:set-overlay-shown :instructions true])}
+    [:div [icon "menu"]]]
    [title]
    [attempt-rows]
    [game-over-alert]
