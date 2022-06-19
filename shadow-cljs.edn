@@ -10,6 +10,8 @@
 
         :compiler-options {:shadow-keywords true}
 
+        :closure-defines {main.views/VERSION #shadow/env ["COMMIT_REF" "dev"]}
+
         :devtools {:http-root   "public"
                    :http-port   3000}}
 

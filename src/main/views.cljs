@@ -127,6 +127,8 @@
      [:button.close-btn {:on-click #(rf/dispatch [:set-overlay-shown id false])}
       [:div [icon "close"]]]]))
 
+(goog-define VERSION "dev")
+
 (defn about []
   [:<>
    [:h1 "Bento & Capitu"]
@@ -141,13 +143,14 @@
    [:div.centered-div
     [:div.letter.wrong "A"]
     [indicator-line "Letra não faz parte da palavra"]]
-   [:p "No modo " [:em "Bento"] ", as palavras têm 5 letras e as tentativas são palavras em geral."]
-   [:p "No modo " [:em "Capitu"] ", as palavras têm 6 letras e as tentativas são restritas às palavras que aparecem no livro " [:em "Dom Casmurro"] "."]
+   [:p "No modo " [:b "Bento"] ", as palavras têm " [:b "5 letras"] " e as tentativas são " [:b "palavras em geral"] "."]
+   [:p "No modo " [:b "Capitu"] ", as palavras têm " [:b "6 letras"] " e as tentativas são " [:b "restritas ao conteúdo do livro "] [:em "Dom Casmurro"] "."]
    [:p "Toque ou clique no título da página para alternar entre os modos. O progresso em cada um deles é mantido."]
    [:p "O jogo funciona offline e pode ser instalado como um app pelo menu do navegador."]
    [:p [:a {:href "https://github.com/brunoadsantos/words"} "Código no GitHub"]]
    [:p [:a {:href "https://machado.mec.gov.br/obra-completa-lista/itemlist/category/23-romance"}
-        "Obra de Machado de Assis em domínio público"]]])
+        "Obra de Machado de Assis em domínio público"]]
+   [:p [:small "Versão " [:em (subs VERSION 0 8)]]]])
 
 (defn bar [{:keys [idx amount max-amount]}]
   (let [max-size 160
