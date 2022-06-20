@@ -4,6 +4,7 @@
 (defn letter-slot [{:keys [letter result idx current-row? current? last-added?]}]
   [:div
    {:key (str idx)
+    :data-letter-idx idx
     :class (str "letter "
                 (when current-row? "current-row ")
                 (when (and current-row? current?) "current-letter ")

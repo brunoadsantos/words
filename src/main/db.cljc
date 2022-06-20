@@ -36,7 +36,7 @@
            (if game-state
              game-state
              (let [answer (rand-nth answers)]
-               (js/console.log answer)
+               #?(:cljs (js/console.log answer))
                {:answer answer
                 :wrong-letters #{}
                 :correct-letters #{}

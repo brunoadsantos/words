@@ -10,10 +10,19 @@
 
 (rf/dispatch-sync [:new-game])
 
+(defn letter-revealed [^js/Event event]
+  (let [letter-idx (-> event
+                       .-target
+                       (.getAttribute "data-letter-idx")
+                       (js/parseInt 10))]
+    (rf/dispatch [:letter-revealed letter-idx])))
+
 (defn on-animation-ended [event]
   (case (.-animationName event)
-    "reject-attempt"
-    (-> event .-target (vh/remove-class "reject-attempt"))
+    "reject-attempt" (-> event .-target (vh/remove-class "reject-attempt"))
+    "reveal-correct" (letter-revealed event)
+    "reveal-misplaced" (letter-revealed event)
+    "reveal-wrong" (letter-revealed event)
 
     nil)
 

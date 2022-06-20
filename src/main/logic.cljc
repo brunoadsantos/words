@@ -71,28 +71,30 @@
                       success? (update-in [:stats :total-wins] (fnil inc 0))
                       (not success?) (assoc :final-answer (get-word db answer))))))))
 
-(defn get-used-letters-from-current-attempt [db]
+(def ^:private letter-result->db-kw
+  {:correct :correct-letters
+   :misplaced :misplaced-letters
+   :wrong :wrong-letters})
+
+(defn ^:private collect-used-letter
+  [db [letter result]]
+  (update db
+          (letter-result->db-kw result)
+          (fnil conj #{})
+          letter))
+
+(defn get-used-letters-from-current-attempt [db letter-results]
   (let [attempt-number (-> db :attempt-number)
-        attempt (get-in db [:attempts attempt-number :attempt])
-        answer (:answer db)
-        answer-letters (set answer)]
-    (-> db
-        (update :wrong-letters into (->> attempt
-                                         (remove answer-letters)))
-        (update :correct-letters into (->> (map vector attempt answer)
-                                           (filter #(= (first %) (second %)))
-                                           (map first)))
-        (update :misplaced-letters into (->> (map vector attempt answer)
-                                             (filter #(and (not= (first %) (second %))
-                                                           (get answer-letters (first %))))
-                                             (map first))))))
+        attempt (get-in db [:attempts attempt-number :attempt])]
+    (->> (map vector attempt letter-results)
+         (reduce collect-used-letter db))))
 
 (defn get-letter-results [db]
-  (let [answer (:answer db)
-        answer-letter-count (frequencies answer)
+  (let [answer-seq (->> (:answer db) #?(:clj (map str)))
+        answer-letter-count (frequencies answer-seq)
         attempt-number (-> db :attempt-number)
         attempt (get-in db [:attempts attempt-number :attempt])
-        correct-letter-count (->> (map (fn [l1 l2] (when (= l1 l2) l1)) attempt answer)
+        correct-letter-count (->> (map (fn [l1 l2] (when (= l1 l2) l1)) attempt answer-seq)
                                   (filter some?)
                                   (frequencies))
         remaining-letter-count (->> answer-letter-count
@@ -100,7 +102,7 @@
                                            [k (- v (get correct-letter-count k 0))]))
                                     (into {}))]
     (loop [results []
-           letter-pairs (map vector attempt answer)
+           letter-pairs (map vector attempt answer-seq)
            remaining remaining-letter-count]
       (if-let [[l1 l2] (first letter-pairs)]
         (let [result (cond

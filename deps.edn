@@ -6,4 +6,9 @@
         alandipert/storage-atom {:mvn/version "2.0.1"}}
 
  :aliases {:shadow-cljs
-           {:main-opts ["-m" "shadow.cljs.devtools.cli"]}}}
+           {:main-opts ["-m" "shadow.cljs.devtools.cli"]}
+
+           :test {:extra-paths ["test"]
+                  :extra-deps {day8.re-frame/test {:mvn/version "0.1.5"}
+                               lambdaisland/kaocha {:mvn/version "1.67.1055"}}
+                  :main-opts ["-m" "kaocha.runner"]}}}
