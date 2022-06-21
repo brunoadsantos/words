@@ -1,0 +1,25 @@
+name: Test, build and deploy
+on: [workflow_dispatch]
+jobs:
+  test-build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Prepare java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@7.0
+        with:
+          cli: 1.11.1.1139
+      - name: Run tests
+        run: clojure -M:test
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Build
+        run: npx shadow-cljs release app worker
