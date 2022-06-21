@@ -22,6 +22,16 @@
                         :game-state (persistable-state new-game)}})))
 
 (rf/reg-event-fx
+ :switch-game-mode
+ (fn [{:keys [db]} _]
+   (let [game-mode (:game-mode db)
+         revealing? (:revealing? db)
+         new-game-mode (if (= :bento game-mode) :capitu :bento)]
+     (if-not revealing?
+       {:fx [[:dispatch [:new-game {:game-mode new-game-mode}]]]}
+       {}))))
+
+(rf/reg-event-fx
  :update-db-after-attempt-reveal
  (fn [{:keys [db]} _]
    (let [letter-results (l/get-letter-results db)

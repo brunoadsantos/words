@@ -73,12 +73,9 @@
    :capitu "CAPITU"})
 
 (defn title []
-  (let [revealing? @(rf/subscribe [:revealing?])
-        game-mode @(rf/subscribe [:game-mode])
-        new-game-mode (if (= :bento game-mode) :capitu :bento)]
+  (let [game-mode @(rf/subscribe [:game-mode])]
     [:h1
-     [:span {:on-click #(when-not revealing?
-                          (rf/dispatch [:new-game {:game-mode new-game-mode}]))}
+     [:span {:on-click #(rf/dispatch [:switch-game-mode])}
       (game-mode->str game-mode)
       [:sub [icon :sync]]]]))
 

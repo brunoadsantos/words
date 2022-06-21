@@ -207,7 +207,7 @@
                                                :fraction 1}]}))
 
      (testing "Full game run on capitu mode"
-       (rf/dispatch [:new-game {:game-mode :capitu}])
+       (rf/dispatch [:switch-game-mode])
        (check-new-game! :capitu)
 
        (run! (fn [_]
