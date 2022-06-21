@@ -18,27 +18,29 @@
     [:div.centered-div {:key id :id id}
      (map letter-slot attempt-row)]))
 
-(defn button [{:keys [text-or-code correct? wrong? misplaced?]}]
-  (let [code (if (string? text-or-code) text-or-code (:code text-or-code))
-        text (if (string? text-or-code) text-or-code (:text text-or-code))]
-    [:button {:key code
-              :on-click #(rf/dispatch [:key-input code])}
-     [:span {:class (cond
-                      correct? "correct"
-                      wrong? "wrong"
-                      misplaced? "misplaced"
-                      :else "")}
-      (str text)]]))
+(defn button [{:keys [code text status]}]
+  [:button {:on-click #(rf/dispatch [:key-input code])}
+   [:span {:class (some-> status name)}
+    (str text)]])
 
 (defn button-row [row {:keys [correct-letters wrong-letters misplaced-letters]}]
   [:div.centered-div
    (->> row
         (map (fn [text-or-code]
-               {:text-or-code text-or-code
-                :correct? (get correct-letters text-or-code)
-                :wrong? (get wrong-letters text-or-code)
-                :misplaced? (get misplaced-letters text-or-code)}))
-        (map button))])
+               (let [text (cond-> text-or-code
+                            (map? text-or-code) :text
+                            :always str)]
+                 {:key text
+                  :text text
+                  :code (cond-> text-or-code
+                          (map? text-or-code) :code
+                          :always str)
+                  :status (condp get text
+                            correct-letters :correct
+                            misplaced-letters :misplaced
+                            wrong-letters :wrong
+                            nil)})))
+        (map (partial vector button)))])
 
 (defn icon [icon-name]
   [:span.material-symbols-outlined
@@ -72,34 +74,44 @@
   {:bento "BENTO"
    :capitu "CAPITU"})
 
-(defn title []
-  (let [game-mode @(rf/subscribe [:game-mode])]
-    [:h1
-     [:span {:on-click #(rf/dispatch [:switch-game-mode])}
-      (game-mode->str game-mode)
-      [:sub [icon :sync]]]]))
+(defn title [{:keys [game-mode]}]
+  [:h1
+   [:span {:on-click #(rf/dispatch [:switch-game-mode])}
+    (game-mode->str game-mode)
+    [:sub [icon :sync]]]])
 
-(defn attempt-rows []
+(defn title-container []
+  (let [props {:game-mode @(rf/subscribe [:game-mode])}]
+    [title props]))
+
+(defn attempt-rows [{:keys [max-attempts]}]
   [:div
-   (for [i (range @(rf/subscribe [:max-attempts]))]
+   (for [i (range max-attempts)]
      [attempt-row {:key i
                    :attempt-number i}])])
 
-(defn game-over-alert []
-  (let [{:keys [final-answer victory-attempt-number game-over? success?]} @(rf/subscribe [:game-over-info])]
-    [:div.centered-div
-     {:style {:visibility (if game-over? "visible" "hidden")
-              :margin "8pt"}}
-     [:span.game-over-banner
-      (if success?
-        (case victory-attempt-number
-          0 "Ótimo chute!"
-          1 "Excelente!"
-          2 "Impressionante!"
-          3 "Ótimo!"
-          4 "Muito bem!"
-          "Ufa!")
-        (str "Resposta: " final-answer))]]))
+(defn attempt-rows-container []
+  (let [props {:max-attempts @(rf/subscribe [:max-attempts])}]
+    [attempt-rows props]))
+
+(defn game-over-alert [{:keys [final-answer victory-attempt-number game-over? success?]}]
+  [:div.centered-div
+   {:style {:visibility (if game-over? "visible" "hidden")
+            :margin "8pt"}}
+   [:span.game-over-banner
+    (if success?
+      (case victory-attempt-number
+        0 "Ótimo chute!"
+        1 "Excelente!"
+        2 "Impressionante!"
+        3 "Ótimo!"
+        4 "Muito bem!"
+        "Ufa!")
+      (str "Resposta: " final-answer))]])
+
+(defn game-over-alert-container []
+  (let [props @(rf/subscribe [:game-over-info])]
+    [game-over-alert props]))
 
 (defn indicator-line [line]
   [:div {:style {:min-width "60%"
@@ -115,7 +127,8 @@
      [:button.close-btn {:on-click #(rf/dispatch [:set-overlay-shown id false])}
       [:div [icon "close"]]]]))
 
-(goog-define VERSION "dev")
+#?(:cljs (goog-define VERSION "dev")
+   :clj (def VERSION "dev"))
 
 (defn about []
   [:<>
@@ -179,9 +192,9 @@
    [overlay :stats [stats]]
    [overlay-trigger :about :info {:left "8pt"}]
    [overlay-trigger :stats :leaderboard {:right "8pt"}]
-   [title]
-   [attempt-rows]
-   [game-over-alert]
+   [title-container]
+   [attempt-rows-container]
+   [game-over-alert-container]
    [keyboard]])
 
 (defn app []
