@@ -21,5 +21,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+      - name: Install node deps
+        run: npm install
       - name: Build
         run: npx shadow-cljs release app worker
