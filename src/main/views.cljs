@@ -13,22 +13,10 @@
    letter])
 
 (defn attempt-row [{:keys [attempt-number]}]
-  (let [{:keys [attempt valid-attempt]} @(rf/subscribe [:attempt attempt-number])
-        letter-results @(rf/subscribe [:letter-results attempt-number])
-        current-attempt @(rf/subscribe [:current-attempt])
-        last-letter-position-added @(rf/subscribe [:last-letter-position-added])
+  (let [attempt-row @(rf/subscribe [:attempt-row-n attempt-number])
         id (str "row" attempt-number)]
     [:div.centered-div {:key id :id id}
-     (->> (map vector (or valid-attempt attempt) letter-results)
-          (map-indexed (fn [idx [letter result]]
-                         {:letter letter
-                          :result result
-                          :active? (<= attempt-number current-attempt)
-                          :current? (= idx (->> attempt (remove empty?) count))
-                          :current-row? (= attempt-number current-attempt)
-                          :last-added? (= last-letter-position-added [attempt-number idx])
-                          :idx idx}))
-          (map letter-slot))]))
+     (map letter-slot attempt-row)]))
 
 (defn button [{:keys [text-or-code correct? wrong? misplaced?]}]
   (let [code (if (string? text-or-code) text-or-code (:code text-or-code))
@@ -80,6 +68,10 @@
           [:span.control
            [icon :done]]]])]]))
 
+(def game-mode->str
+  {:bento "BENTO"
+   :capitu "CAPITU"})
+
 (defn title []
   (let [revealing? @(rf/subscribe [:revealing?])
         game-mode @(rf/subscribe [:game-mode])
@@ -87,7 +79,7 @@
     [:h1
      [:span {:on-click #(when-not revealing?
                           (rf/dispatch [:new-game {:game-mode new-game-mode}]))}
-      (if (= :bento game-mode) "BENTO" "CAPITU")
+      (game-mode->str game-mode)
       [:sub [icon :sync]]]]))
 
 (defn attempt-rows []
@@ -97,16 +89,14 @@
                    :attempt-number i}])])
 
 (defn game-over-alert []
-  (let [{:keys [final-answer]} @(rf/subscribe [:answer])
-        current-attempt @(rf/subscribe [:current-attempt])
-        {:keys [game-over? success?]} @(rf/subscribe [:game-over?])]
+  (let [{:keys [final-answer victory-attempt-number game-over? success?]} @(rf/subscribe [:game-over-info])]
     [:div.centered-div
      {:style {:visibility (if game-over? "visible" "hidden")
               :margin "8pt"}}
      [:span.game-over-banner
       (if success?
-        (case current-attempt
-          0 "Ótimo chute! ;)"
+        (case victory-attempt-number
+          0 "Ótimo chute!"
           1 "Excelente!"
           2 "Impressionante!"
           3 "Ótimo!"
@@ -153,38 +143,31 @@
         "Obra de Machado de Assis em domínio público"]]
    [:p [:small "Versão " [:em (subs VERSION 0 8)]]]])
 
-(defn bar [{:keys [idx amount max-amount]}]
+(defn bar [{:keys [attempt-number number-of-wins fraction]}]
   (let [max-size 160
-        bar-size (* max-size (/ amount max-amount))]
-    [:div.bar {:key (str "bar" idx)
+        bar-size (* max-size fraction)]
+    [:div.bar {:key (str "bar" attempt-number)
                :style {:width (str max-size "pt")}}
      [:div {:style {:width (str bar-size "pt")}}
-      amount]]))
+      number-of-wins]]))
 
-(defn attempts-distribution [stats max-attempts]
-  (when (-> stats :total-wins pos-int?)
+(defn attempts-distribution-chart [attempts-distribution]
+  (when (seq attempts-distribution)
     [:<>
      [:h3 "Distribuição por número de tentativas"]
-     (let [max-amount (->> stats :attempts-to-win vals (apply max))]
-       (for [i (range max-attempts)
-             :let [i (inc i)
-                   amount (get-in stats [:attempts-to-win i] 0)]
-             :when (pos-int? amount)]
-         [:div.centered-div {:key (str i)}
-          (str i)
-          [bar {:amount amount
-                :max-amount max-amount}]]))]))
+     (for [{:keys [attempt-number] :as info} attempts-distribution]
+       [:div.centered-div {:key (str attempt-number)}
+        (str attempt-number)
+        [bar info]])]))
 
 (defn stats []
-  (let [game-mode @(rf/subscribe [:game-mode])
-        max-attempts @(rf/subscribe [:max-attempts])
-        stats @(rf/subscribe [:stats])]
+  (let [{:keys [game-mode total-games-played total-wins attempts-distribution]} @(rf/subscribe [:stats-info])]
     [:<>
-     [:h1 (if (= game-mode :bento) "BENTO" "CAPITU")]
+     [:h1 (game-mode->str game-mode)]
      [:h3 "Estatísticas"]
-     [:p "Jogos finalizados: " (or (:total-games-played stats) 0)]
-     [:p "Vitórias: " (or (:total-wins stats) 0)]
-     [attempts-distribution stats max-attempts]]))
+     [:p "Jogos finalizados: " total-games-played]
+     [:p "Vitórias: " total-wins]
+     [attempts-distribution-chart attempts-distribution]]))
 
 (defn overlay-trigger [id icon-name styling]
   [:button {:style (merge {:position :absolute

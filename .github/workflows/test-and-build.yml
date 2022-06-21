@@ -1,4 +1,4 @@
-name: Run tests
+name: Run tests and build
 on: [push]
 jobs:
   run-all-tests:
@@ -17,3 +17,14 @@ jobs:
           cli: 1.11.1.1139
       - name: Run tests
         run: clojure -M:test
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install node deps
+        run: npm install
+      - name: "Set env var"
+        run: |
+          echo "COMMIT_REF=$GITHUB_SHA" >> $GITHUB_ENV
+      - name: Build
+        run: npx shadow-cljs release app worker

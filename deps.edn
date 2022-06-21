@@ -10,5 +10,6 @@
 
            :test {:extra-paths ["test"]
                   :extra-deps {day8.re-frame/test {:mvn/version "0.1.5"}
-                               lambdaisland/kaocha {:mvn/version "1.67.1055"}}
+                               lambdaisland/kaocha {:mvn/version "1.67.1055"}
+                               nubank/matcher-combinators {:mvn/version "3.5.0"}}
                   :main-opts ["-m" "kaocha.runner"]}}}
