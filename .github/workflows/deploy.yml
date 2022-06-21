@@ -23,5 +23,15 @@ jobs:
           node-version: 18
       - name: Install node deps
         run: npm install
+      - name: "Set env var"
+        run: |
+          echo "COMMIT_REF=$GITHUB_SHA" >> $GITHUB_ENV
       - name: Build
         run: npx shadow-cljs release app worker
+      - name: Deploy on Netlify
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir=public --prod
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
