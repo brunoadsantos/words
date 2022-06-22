@@ -1,8 +1,6 @@
 ;; shadow-cljs configuration
 {:deps true
 
- :dev-http {8021 "out/test"}
-
  :builds
  {:app {:target :browser
         :output-dir "public/js"
@@ -14,8 +12,8 @@
 
         :closure-defines {main.views/VERSION #shadow/env ["COMMIT_REF" "dev"]}
 
-        :devtools {:http-root   "public"
-                   :http-port   3000}}
+        :devtools {:http-root "public"
+                   :http-port 3000}}
 
   :worker {:target :browser
            :output-dir "public/"
@@ -27,7 +25,9 @@
                               :web-worker true}}
 
   :browser-test {:target :browser-test
-                 :test-dir "out/test"}
+                 :test-dir "out/test"
+                 :devtools {:http-root "out/test"
+                            :http-port 8021}}
 
   :karma-test {:target :karma
                :output-to "out/karma.js"}}}
