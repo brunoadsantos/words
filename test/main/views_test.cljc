@@ -1,5 +1,6 @@
 (ns main.views-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require #?@(:clj  [[clojure.test :refer [deftest is]]]
+                :cljs [[cljs.test :refer [deftest is]]])
             [main.views :as v]
             [matcher-combinators.matchers :as m]
             [matcher-combinators.standalone :refer [match?]]))

@@ -3,6 +3,7 @@ public/js
 public/manifest.edn
 public/worker.js
 
+/out
 /target
 /checkouts
 /src/gen

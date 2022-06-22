@@ -1,5 +1,6 @@
 (ns main.logic-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require #?@(:clj  [[clojure.test :refer [deftest is]]]
+                :cljs [[cljs.test :refer [deftest is]]])
             [main.logic :as l]))
 
 (deftest get-word

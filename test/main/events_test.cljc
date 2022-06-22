@@ -1,5 +1,7 @@
 (ns main.events-test
-  (:require [clojure.test :refer [deftest is testing use-fixtures]]
+  (:require #?@(:clj  [[clojure.test :refer [deftest is testing use-fixtures]]]
+                :cljs [[cljs.test :refer [deftest is testing use-fixtures]]
+                       [main.effects]])
             [day8.re-frame.test :as rf-test]
             [main.events]
             [main.subs]
@@ -7,27 +9,33 @@
             [re-frame.core :as rf]
             [re-frame.db :as rf-db]))
 
-(defn ^:private fixture-re-frame
-  [f]
-  (let [restore-re-frame (atom nil)]
-    (reset! restore-re-frame (rf/make-restore-fn))
-    (f)
-    (@restore-re-frame)))
+#?(:clj (defn fixture-re-frame []
+          (fn clj-fixture [f]
+            (let [restore-re-frame (atom nil)]
+              (reset! restore-re-frame (rf/make-restore-fn))
+              (f)
+              (@restore-re-frame))))
+   :cljs (defn fixture-re-frame []
+           (let [restore-re-frame (atom nil)]
+             {:before #(do (reset! restore-re-frame (rf/make-restore-fn))
+                           (reset! main.effects/local-storage {}))
+              :after  #(@restore-re-frame)})))
 
-(use-fixtures :each fixture-re-frame)
+#?(:clj (defn ^:private stub-cofxs
+          ([] (stub-cofxs {}))
+          ([saved-game-state]
+           (rf/reg-cofx
+            :game-mode-from-url
+            (fn game-mode [cofx]
+              (assoc cofx :game-mode-from-url :bento)))
 
-(defn ^:private stub-cofxs
-  ([] (stub-cofxs {}))
-  ([saved-game-state]
-   (rf/reg-cofx
-    :game-mode-from-url
-    (fn game-mode [cofx]
-      (assoc cofx :game-mode-from-url :bento)))
+           (rf/reg-cofx
+            :saved-game-state
+            (fn game-state [cofx]
+              (assoc cofx :saved-game-state saved-game-state)))))
+   :cljs (defn ^:private stub-cofxs ([]) ([_]))) ;; no stubbing for cljs
 
-   (rf/reg-cofx
-    :saved-game-state
-    (fn game-state [cofx]
-      (assoc cofx :saved-game-state saved-game-state)))))
+(use-fixtures :each (fixture-re-frame))
 
 (defn ^:private input-keys! [keys-seq]
   (run!
@@ -187,9 +195,9 @@
                                                :number-of-wins 1
                                                :fraction 1}]}))
 
-     (testing "Re-stub coeffects to simulate persisted state and start new game"
+     (testing "Re-stub coeffects to simulate persisted state (clj only) and start new game"
        (stub-cofxs {:bento @rf-db/app-db})
-       (rf/dispatch [:new-game {:game-mode :bento :force-new? true}])
+       (rf/dispatch [:new-game {:force-new? true}])
        (check-new-game! :bento))
 
      (testing "Use all attempts with wrong word to end game"
