@@ -13,10 +13,10 @@
    letter])
 
 (defn attempt-row [{:keys [attempt-number]}]
-  (let [attempt-row @(rf/subscribe [:attempt-row-n attempt-number])
+  (let [row @(rf/subscribe [:attempt-row-n attempt-number])
         id (str "row" attempt-number)]
     [:div.centered-div {:key id :id id}
-     (map letter-slot attempt-row)]))
+     (map letter-slot row)]))
 
 (defn button [{:keys [code text status]}]
   [:button {:on-click #(rf/dispatch [:key-input code])}

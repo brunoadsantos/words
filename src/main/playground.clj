@@ -63,5 +63,4 @@
                (vec (concat [(first %)] (second %)))))
        (sort-by first)
        vec
-       (spit "all_words.cljs"))
-  )
+       (spit "all_words.cljs")))

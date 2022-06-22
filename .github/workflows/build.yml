@@ -1,13 +1,8 @@
-name: Test, build and deploy
-on: [workflow_dispatch]
+name: Build
+on: [workflow_call workflow_dispatch]
 jobs:
-  tests:
-    uses: ./.github/workflows/tests.yml
-  lint-and-format-check:
-    uses: ./.github/workflows/lint-and-format.yml
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    needs: [tests lint-and-format-check]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -31,10 +26,3 @@ jobs:
           echo "COMMIT_REF=$GITHUB_SHA" >> $GITHUB_ENV
       - name: Build
         run: npx shadow-cljs release app worker
-      - name: Deploy on Netlify
-        uses: netlify/actions/cli@master
-        with:
-          args: deploy --dir=public --prod --message "From GH at $COMMIT_REF"
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
