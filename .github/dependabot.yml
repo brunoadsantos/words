@@ -5,6 +5,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "@testing-library/react"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
