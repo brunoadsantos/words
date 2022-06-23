@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "@testing-library/react": "12.1.4",
+    "@testing-library/react": "13.3.0",
     "karma": "^6.4.0",
     "karma-chrome-launcher": "^3.1.1",
     "karma-cljs-test": "^0.1.0",
