@@ -17,9 +17,12 @@
          new-game (merge (db/new-game {:game-mode game-mode
                                        :game-state (when-not force-new? game-state)})
                          (select-keys game-state [:stats]))]
-     {:db new-game
-      :save-game-state {:game-mode game-mode
-                        :game-state (persistable-state new-game)}})))
+     (cond-> {:db new-game
+              :save-game-state {:game-mode game-mode
+                                :game-state (persistable-state new-game)}}
+       (or (not game-state) force-new?)
+       (assoc :ga-event {:event-name "new-game"
+                         :event-params {:game-mode game-mode}})))))
 
 (rf/reg-event-fx
  :switch-game-mode
@@ -28,7 +31,9 @@
          revealing? (:revealing? db)
          new-game-mode (if (= :bento game-mode) :capitu :bento)]
      (if-not revealing?
-       {:fx [[:dispatch [:new-game {:game-mode new-game-mode}]]]}
+       {:ga-event {:event-name "switch-game-mode"
+                   :event-params {:new-game-mode new-game-mode}}
+        :fx [[:dispatch [:new-game {:game-mode new-game-mode}]]]}
        {}))))
 
 (rf/reg-event-fx
@@ -40,9 +45,14 @@
                         (l/check-current-attempt letter-results)
                         (l/new-attempt)
                         (l/check-game-over))]
-     {:db updated-db
-      :save-game-state {:game-mode (:game-mode updated-db)
-                        :game-state (persistable-state updated-db)}})))
+     (cond-> {:db updated-db
+              :save-game-state {:game-mode (:game-mode updated-db)
+                                :game-state (persistable-state updated-db)}}
+       (:game-over? updated-db)
+       (assoc :ga-event {:event-name "game-complete"
+                         :event-params {:game-mode (:game-mode updated-db)
+                                        :success (:success? updated-db)
+                                        :attempts (-> updated-db :attempt-number inc)}})))))
 
 (rf/reg-event-fx
  :letter-revealed
@@ -77,7 +87,10 @@
        :delete {:db (l/pop-from-current-attempt db)}
        {:db (l/push-to-current-attempt db k)}))))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :set-overlay-shown
- (fn [db [_ overlay-id shown?]]
-   (assoc-in db [:overlays overlay-id] shown?)))
+ (fn [{:keys [db]} [_ overlay-id shown?]]
+   (cond-> {:db (assoc-in db [:overlays overlay-id] shown?)}
+     shown?
+     (assoc :ga-event {:event-name "overlay-shown"
+                       :event-params {:overlay-id overlay-id}}))))

@@ -3,7 +3,6 @@
             [cljs.test :refer [deftest is use-fixtures]]
             [clojure.string :as str]
             [day8.re-frame.test :as rf-test]
-            [main.core]
             [main.effects]
             [main.events]
             [main.subs]

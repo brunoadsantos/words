@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [main.effects]
             [main.events]
+            [main.ga-effects]
             [main.subs]
             [main.view-helper :as vh]
             [main.views]
