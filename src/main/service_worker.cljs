@@ -5,8 +5,13 @@
 (def resources-to-cache
   #js ["/manifest.webmanifest"
        "/"
+       "/?utm_source=pwa"
        "/index.html"
        "/js/main.js"
+       "/img/icon-96x96.png"
+       "/img/icon-128x128.png"
+       "/img/icon-144x144.png"
+       "/img/icon-152x152.png"
        "/img/icon-192x192.png"
        "/img/icon-256x256.png"
        "/img/icon-384x384.png"
@@ -66,6 +71,7 @@
  js/self "fetch"
  (fn [event]
    (let [request (.-request event)]
-     (.respondWith event
-                   (-> (.match js/caches request)
-                       (.then (partial cache-first-and-revalidate request)))))))
+     (when (-> request .-method (= "GET"))
+       (.respondWith event
+                     (-> (.match js/caches request)
+                         (.then (partial cache-first-and-revalidate request))))))))

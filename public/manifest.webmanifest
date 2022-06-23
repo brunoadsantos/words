@@ -1,12 +1,34 @@
 {
     "theme_color": "#5c2000",
-    "background_color": "#fdebc1",
+    "background_color": "#FFEBC1",
     "display": "standalone",
     "scope": "/",
-    "start_url": "/",
-    "name": "Bento e Capitu",
+    "start_url": "/?utm_source=pwa",
+    "id": "/",
+    "name": "Bento & Capitu",
     "short_name": "Bento&Capitu",
+    "description": "Jogo no estilo Wordle, em Português, com palavras da obra Dom Casmurro de Machado de Assis.",
     "icons": [
+        {
+            "src": "/img/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "/img/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "/img/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "/img/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
         {
             "src": "/img/icon-192x192.png",
             "sizes": "192x192",
