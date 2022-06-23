@@ -1,9 +1,8 @@
 name: Run tests, lint, format check and build
 on:
   workflow_dispatch:
+  pull_request:
   push:
-    branches:
-      - main
     paths:
       - 'src/**'
       - 'test/**'
