@@ -12,5 +12,14 @@
   "dependencies": {
     "react": "18.2.0",
     "react-dom": "18.2.0"
+  },
+  "scripts": {
+    "release": "npx shadow-cljs release app worker",
+    "watch": "npx shadow-cljs watch app",
+    "browser-test-watch": "npx shadow-cljs -A:cljs-test watch browser-test",
+    "prekarma-test": "npx shadow-cljs -A:cljs-test compile karma-test",
+    "karma-test": "npx karma start --single-run",
+    "clj-test": "clojure -M:test",
+    "test": "npm run clj-test && npm run karma-test"
   }
 }
