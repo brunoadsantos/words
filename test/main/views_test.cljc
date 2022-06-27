@@ -110,9 +110,9 @@
                                    :correct-letters #{"C"}}))))
 
 (deftest title
-  (is (match? [:div.title.centered-div [:h1 [:span {} "BENTO" [:sub [(m/equals v/icon) :sync]]]]]
+  (is (match? [:div.title.centered-div [:h1 [:span {} "BENTO" [:sub [(m/equals v/icon) :swap_horiz]]]]]
               (v/title {:game-mode :bento})))
-  (is (match? [:div.title.centered-div [:h1 [:span {} "CAPITU" [:sub [(m/equals v/icon) :sync]]]]]
+  (is (match? [:div.title.centered-div [:h1 [:span {} "CAPITU" [:sub [(m/equals v/icon) :swap_horiz]]]]]
               (v/title {:game-mode :capitu}))))
 
 (deftest game-over-alert

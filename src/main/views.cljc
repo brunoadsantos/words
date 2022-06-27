@@ -57,12 +57,19 @@
 
      [:div.centered-div.button-row
       (if game-over?
-        [:button.control.keyboard-btn {:on-click #(rf/dispatch [:new-game {:force-new? true}])}
-         [:span [icon :refresh]]]
+        [:<>
+         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:set-overlay-shown :stats true])}
+          [:span [icon :leaderboard]]]
+         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:switch-game-mode])}
+          [:span [icon :swap_horiz]]]
+         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:new-game {:force-new? true}])}
+          [:span [icon :refresh]]]]
         [:<>
          [:button.control.keyboard-btn {:on-click #(rf/dispatch [:key-input :delete])
                                         :disabled revealing?}
           [:span [icon :backspace]]]
+         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:switch-game-mode])}
+          [:span [icon :swap_horiz]]]
          [:button.control.keyboard-btn {:on-click #(rf/dispatch [:key-input :check])
                                         :disabled revealing?}
           [:span [icon :done]]]])]]))
@@ -76,7 +83,7 @@
    [:h1
     [:span {:on-click #(rf/dispatch [:switch-game-mode])}
      (game-mode->str game-mode)
-     [:sub [icon :sync]]]]])
+     [:sub [icon :swap_horiz]]]]])
 
 (defn title-container []
   (let [props {:game-mode @(rf/subscribe [:game-mode])}]
@@ -118,8 +125,9 @@
 
 (defn overlay [id content]
   (let [shown? @(rf/subscribe [:overlay-shown? id])]
-    [:div.overlay.centered-div {:style {:left (if shown? "0%" "-110%")}}
-     [:div.overlay-content
+    [:div.overlay.centered-div {:style {:left (if shown? "0%" "-110%")}
+                                :on-click #(rf/dispatch [:set-overlay-shown id false])}
+     [:div.overlay-content {:on-click (fn [event] (.stopPropagation event))}
       content]
      [:button.close-btn {:on-click #(rf/dispatch [:set-overlay-shown id false])}
       [:div [icon "close"]]]]))
