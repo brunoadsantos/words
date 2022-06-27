@@ -19,12 +19,12 @@
      (map letter-slot row)]))
 
 (defn button [{:keys [code text status]}]
-  [:button {:on-click #(rf/dispatch [:key-input code])}
+  [:button.keyboard-btn {:on-click #(rf/dispatch [:key-input code])}
    [:span {:class (some-> status name)}
     (str text)]])
 
 (defn button-row [row {:keys [correct-letters wrong-letters misplaced-letters]}]
-  [:div.centered-div
+  [:div.centered-div.button-row
    (->> row
         (map (fn [text-or-code]
                (let [text (cond-> text-or-code
@@ -50,24 +50,24 @@
   (let [used-letters @(rf/subscribe [:used-letters])
         revealing? @(rf/subscribe [:revealing?])
         {:keys [game-over?]} @(rf/subscribe [:game-over?])]
-    [:div
+    [:div.keyboard
      [button-row ["Q" "W" "E" "R" "T" "Y" "U" "I" "O" "P"] used-letters]
      [button-row ["A" "S" "D" "F" "G" "H" "J" "K" "L"] used-letters]
      [button-row ["Z" "X" "C" "V" "B" "N" "M"] used-letters]
 
-     [:div.centered-div
+     [:div.centered-div.button-row
       (if game-over?
-        [:button {:on-click #(rf/dispatch [:new-game {:force-new? true}])}
-         [:span.control
+        [:button.control.keyboard-btn {:on-click #(rf/dispatch [:new-game {:force-new? true}])}
+         [:span
           [icon :refresh]]]
         [:<>
-         [:button {:on-click #(rf/dispatch [:key-input :delete])
-                   :disabled revealing?}
-          [:span.control
+         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:key-input :delete])
+                                        :disabled revealing?}
+          [:span
            [icon :backspace]]]
-         [:button {:on-click #(rf/dispatch [:key-input :check])
-                   :disabled revealing?}
-          [:span.control
+         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:key-input :check])
+                                        :disabled revealing?}
+          [:span
            [icon :done]]]])]]))
 
 (def game-mode->str
@@ -75,17 +75,18 @@
    :capitu "CAPITU"})
 
 (defn title [{:keys [game-mode]}]
-  [:h1
-   [:span {:on-click #(rf/dispatch [:switch-game-mode])}
-    (game-mode->str game-mode)
-    [:sub [icon :sync]]]])
+  [:div.title
+   [:h1
+    [:span {:on-click #(rf/dispatch [:switch-game-mode])}
+     (game-mode->str game-mode)
+     [:sub [icon :sync]]]]])
 
 (defn title-container []
   (let [props {:game-mode @(rf/subscribe [:game-mode])}]
     [title props]))
 
 (defn attempt-rows [{:keys [max-attempts]}]
-  [:div
+  [:div.attempt-rows
    (for [i (range max-attempts)]
      [attempt-row {:key i
                    :attempt-number i}])])
@@ -95,9 +96,8 @@
     [attempt-rows props]))
 
 (defn game-over-alert [{:keys [final-answer victory-attempt-number game-over? success?]}]
-  [:div.centered-div
-   {:style {:visibility (if game-over? "visible" "hidden")
-            :margin "8pt"}}
+  [:div.centered-div.game-over
+   {:style {:visibility (if game-over? "visible" "hidden")}}
    [:span.game-over-banner
     (if success?
       (case victory-attempt-number
@@ -116,7 +116,7 @@
 (defn indicator-line [line]
   [:div {:style {:min-width "60%"
                  :text-align :left
-                 :margin-left "8pt"}}
+                 :margin-left "8px"}}
    line])
 
 (defn overlay [id content]
@@ -157,8 +157,8 @@
   (let [max-size 160
         bar-size (* max-size fraction)]
     [:div.bar {:key (str "bar" attempt-number)
-               :style {:width (str max-size "pt")}}
-     [:div {:style {:width (str bar-size "pt")}}
+               :style {:width (str max-size "px")}}
+     [:div {:style {:width (str bar-size "px")}}
       number-of-wins]]))
 
 (defn attempts-distribution-chart [attempts-distribution]
@@ -181,20 +181,20 @@
 
 (defn overlay-trigger [id icon-name styling]
   [:button {:style (merge {:position :absolute
-                           :top "8pt"}
+                           :top "8px"}
                           styling)
             :on-click #(rf/dispatch [:set-overlay-shown id true])}
    [:div [icon icon-name]]])
 
 (defn body []
-  [:div
+  [:<>
    [overlay :about [about]]
    [overlay :stats [stats]]
-   [overlay-trigger :about :info {:left "8pt"}]
-   [overlay-trigger :stats :leaderboard {:right "8pt"}]
+   [overlay-trigger :about :info {:left "8px"}]
+   [overlay-trigger :stats :leaderboard {:right "8px"}]
    [title-container]
-   [attempt-rows-container]
    [game-over-alert-container]
+   [attempt-rows-container]
    [keyboard]])
 
 (defn app []

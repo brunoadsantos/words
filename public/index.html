@@ -4,8 +4,10 @@
 <head>
   <meta charset="utf-8">
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="description" content="Jogo no estilo Wordle, em Português, com palavras da obra Dom Casmurro de Machado de Assis.">
-  <meta name="keywords" content="Bento, Capitu, Wordle, Português, pt-BR, Dom Casmurro, Machado de Assis, jogo, offline, palavras">
+  <meta name="description"
+    content="Jogo no estilo Wordle, em Português, com palavras da obra Dom Casmurro de Machado de Assis.">
+  <meta name="keywords"
+    content="Bento, Capitu, Wordle, Português, pt-BR, Dom Casmurro, Machado de Assis, jogo, offline, palavras">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#5c2000">
   <link rel="icon" href="/img/icon-96x96.png">
@@ -44,10 +46,22 @@
       --white: #fff;
     }
 
+    html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
     body {
+      margin: 0;
+      height: 100%;
       background-image: url(/img/bg.png);
       font-family: "EB Garamond";
       user-select: none;
+    }
+
+    #app {
+      height: 100%
     }
 
     a {
@@ -59,53 +73,80 @@
       color: var(--primary);
       text-align: center;
       user-select: none;
+      margin: 0;
+      padding: 0;
     }
 
     button {
       background: none;
       border: none;
       margin: 0;
-      padding: 0;
+    }
+
+    button.keyboard-btn {
+      padding: 2px;
+      width: 10vw;
+      max-width: 50px;
+      height: 100%;
       display: inline-block;
     }
 
     button>span {
-      transition: 0.5s;
+      transition: background-color 0.5s, color 0.5s;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 2em;
-      min-width: 1em;
-      font-size: 0.8em;
+      font-size: 1em;
       font-family: "Rubik";
-      padding: 6pt;
-      border-radius: 8pt;
-      margin: 3pt;
+      border-radius: 12px;
+      height: 100%;
+      width: 100%;
       color: var(--primary);
       background-color: var(--button-bg);
-      box-shadow: 1px 1px 2px var(--primary);
+      box-sizing: border-box;
+      border: 1px solid var(--primary);
     }
 
     button:active>span {
-      box-shadow: 1px -1px 2px var(--primary);
+      border: 2px solid var(--primary);
     }
 
-    button>span.control {
-      padding-left: 12pt;
-      padding-right: 12pt;
+    button.control {
+      width: 20vw;
+      max-width: 100px;
+    }
+
+    div.title {
+      height: 10%;
+    }
+
+    div.game-over {
+      height: 8%;
+    }
+
+    div.attempt-rows {
+      height: 50%;
+    }
+
+    div.keyboard {
+      height: 30%;
+    }
+
+    div.button-row {
+      height: 25%;
     }
 
     div.bar {
       display: inline-block;
-      margin: 4pt;
+      margin: 4px;
     }
 
     div.bar>div {
       display: inline-block;
       position: relative;
-      padding: 6pt;
+      padding: 6px;
       text-align: right;
-      border-radius: 4pt;
+      border-radius: 4px;
       color: var(--letter-fg);
       background-color: var(--banner);
       transition: 0.5s;
@@ -127,13 +168,13 @@
     .overlay-content {
       color: #000;
       position: relative;
-      padding: 0 16pt 0 16pt;
+      padding: 0 16px 0 16px;
     }
 
     .overlay .close-btn {
       position: absolute;
-      top: 8pt;
-      right: 8pt;
+      top: 8px;
+      right: 8px;
     }
 
     .centered-div {
@@ -146,8 +187,8 @@
     .game-over-banner {
       font-weight: 700;
       background-color: var(--banner);
-      padding: 8pt;
-      border-radius: 8pt;
+      padding: 8px;
+      border-radius: 8px;
       color: var(--letter-fg);
     }
 
@@ -158,20 +199,21 @@
       align-items: center;
       background-color: var(--letter-bg);
       color: var(--letter-fg);
-      height: 3em;
-      width: 2.5em;
+      height: 6vh;
+      width: 10vw;
+      max-width: 50px;
       font-size: 1em;
-      border-radius: 8pt;
-      margin: 2pt;
+      border-radius: 12px;
+      margin: 2px;
       box-sizing: border-box;
     }
 
     .letter.current-row {
-      border: 2pt solid var(--primary);
+      border: 2px solid var(--primary);
     }
 
     .letter.current-letter {
-      border-bottom: 4pt solid var(--primary);
+      border-bottom: 6px solid var(--primary);
     }
 
     .correct {
@@ -285,19 +327,19 @@
 
     @keyframes reject-attempt {
       0% {
-        transform: translateX(0pt);
+        transform: translateX(0px);
       }
 
       25% {
-        transform: translateX(16pt);
+        transform: translateX(16px);
       }
 
       50% {
-        transform: translateX(-16pt);
+        transform: translateX(-16px);
       }
 
       100% {
-        transform: translateX(0pt);
+        transform: translateX(0px);
       }
     }
 
