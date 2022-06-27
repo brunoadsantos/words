@@ -8,7 +8,7 @@
     :class (str "letter "
                 (when current-row? "current-row ")
                 (when (and current-row? current?) "current-letter ")
-                (when last-added? "last-added-letter ")
+                (when last-added? "pulse ")
                 (name result))}
    letter])
 
@@ -97,17 +97,17 @@
 
 (defn game-over-alert [{:keys [final-answer victory-attempt-number game-over? success?]}]
   [:div.centered-div.game-over
-   {:style {:visibility (if game-over? "visible" "hidden")}}
-   [:span.game-over-banner
-    (if success?
-      (case victory-attempt-number
-        0 "Ótimo chute!"
-        1 "Excelente!"
-        2 "Impressionante!"
-        3 "Ótimo!"
-        4 "Muito bem!"
-        "Ufa!")
-      (str "Resposta: " final-answer))]])
+   (when game-over?
+     [:span.game-over-banner.pulse
+      (if success?
+        (case victory-attempt-number
+          0 "Ótimo chute!"
+          1 "Excelente!"
+          2 "Impressionante!"
+          3 "Ótimo!"
+          4 "Muito bem!"
+          "Ufa!")
+        (str "Resposta: " final-answer))])])
 
 (defn game-over-alert-container []
   (let [props @(rf/subscribe [:game-over-info])]

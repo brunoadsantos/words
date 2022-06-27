@@ -13,7 +13,7 @@
               (v/letter-slot {:result :correct
                               :idx 0
                               :letter "A"})))
-  (is (match? [:div {:class "letter last-added-letter correct"} "A"]
+  (is (match? [:div {:class "letter pulse correct"} "A"]
               (v/letter-slot {:result :correct
                               :idx 0
                               :last-added? true
@@ -116,17 +116,17 @@
               (v/title {:game-mode :capitu}))))
 
 (deftest game-over-alert
-  (is (match? [:div.centered-div.game-over {:style {:visibility "hidden"}} vector?]
+  (is (match? [:div.centered-div.game-over nil]
               (v/game-over-alert {})))
-  (is (match? [:div.centered-div.game-over {:style {:visibility "visible"}} vector?]
+  (is (match? [:div.centered-div.game-over vector?]
               (v/game-over-alert {:game-over? true})))
-  (is (match? [:div.centered-div.game-over {} [:span.game-over-banner "Resposta: FINAL"]]
+  (is (match? [:div.centered-div.game-over [:span.game-over-banner.pulse "Resposta: FINAL"]]
               (v/game-over-alert {:game-over? true
                                   :final-answer "FINAL"})))
-  (is (match? [:div.centered-div.game-over {} [:span.game-over-banner "Ufa!"]]
+  (is (match? [:div.centered-div.game-over [:span.game-over-banner.pulse "Ufa!"]]
               (v/game-over-alert {:game-over? true
                                   :success? true})))
-  (is (match? [:div.centered-div.game-over {} [:span.game-over-banner "Muito bem!"]]
+  (is (match? [:div.centered-div.game-over [:span.game-over-banner.pulse "Muito bem!"]]
               (v/game-over-alert {:game-over? true
                                   :success? true
                                   :victory-attempt-number 4}))))
