@@ -8,7 +8,7 @@
     content="Jogo no estilo Wordle, em Português, com palavras da obra Dom Casmurro de Machado de Assis.">
   <meta name="keywords"
     content="Bento, Capitu, Wordle, Português, pt-BR, Dom Casmurro, Machado de Assis, jogo, offline, palavras">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
   <meta name="theme-color" content="#5c2000">
   <link rel="icon" href="/img/icon-96x96.png">
 
@@ -126,6 +126,7 @@
 
     div.attempt-rows {
       height: 50%;
+      flex-direction: column;
     }
 
     div.keyboard {
@@ -169,6 +170,9 @@
       color: #000;
       position: relative;
       padding: 0 16px 0 16px;
+      max-width: 600px;
+      min-width: 200px;
+      align-self: flex-start;
     }
 
     .overlay .close-btn {
@@ -286,19 +290,25 @@
     }
 
     @keyframes reject-attempt {
-      10%, 90% {
+
+      10%,
+      90% {
         transform: translateX(-2px);
       }
 
-      20%, 80% {
+      20%,
+      80% {
         transform: translateX(4px);
       }
 
-      30%, 50%, 70% {
+      30%,
+      50%,
+      70% {
         transform: translateX(-8px);
       }
 
-      40%, 60% {
+      40%,
+      60% {
         transform: translateX(8px);
       }
     }
@@ -307,7 +317,7 @@
       animation-duration: 0.8s;
       animation-name: reject-attempt;
       animation-iteration-count: 1;
-      animation-timing-function: cubic-bezier(.36,.07,.19,.97);
+      animation-timing-function: cubic-bezier(.36, .07, .19, .97);
     }
 
     @keyframes pulse {

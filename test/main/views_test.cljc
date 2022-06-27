@@ -34,9 +34,9 @@
   (is (= [:span.material-symbols-outlined "abc"] (v/icon :abc))))
 
 (deftest attempt-rows
-  (is (match? [:div.attempt-rows [[(m/equals v/attempt-row) {:key 0 :attempt-number 0}]]]
+  (is (match? [:div.attempt-rows.centered-div [[(m/equals v/attempt-row) {:key 0 :attempt-number 0}]]]
               (v/attempt-rows {:max-attempts 1})))
-  (is (match? [:div.attempt-rows (repeat 6 [(m/equals v/attempt-row) {:key integer? :attempt-number integer?}])]
+  (is (match? [:div.attempt-rows.centered-div (repeat 6 [(m/equals v/attempt-row) {:key integer? :attempt-number integer?}])]
               (v/attempt-rows {:max-attempts 6}))))
 
 (deftest button
@@ -110,9 +110,9 @@
                                    :correct-letters #{"C"}}))))
 
 (deftest title
-  (is (match? [:div.title [:h1 [:span {} "BENTO" [:sub [(m/equals v/icon) :sync]]]]]
+  (is (match? [:div.title.centered-div [:h1 [:span {} "BENTO" [:sub [(m/equals v/icon) :sync]]]]]
               (v/title {:game-mode :bento})))
-  (is (match? [:div.title [:h1 [:span {} "CAPITU" [:sub [(m/equals v/icon) :sync]]]]]
+  (is (match? [:div.title.centered-div [:h1 [:span {} "CAPITU" [:sub [(m/equals v/icon) :sync]]]]]
               (v/title {:game-mode :capitu}))))
 
 (deftest game-over-alert

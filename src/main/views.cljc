@@ -58,24 +58,21 @@
      [:div.centered-div.button-row
       (if game-over?
         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:new-game {:force-new? true}])}
-         [:span
-          [icon :refresh]]]
+         [:span [icon :refresh]]]
         [:<>
          [:button.control.keyboard-btn {:on-click #(rf/dispatch [:key-input :delete])
                                         :disabled revealing?}
-          [:span
-           [icon :backspace]]]
+          [:span [icon :backspace]]]
          [:button.control.keyboard-btn {:on-click #(rf/dispatch [:key-input :check])
                                         :disabled revealing?}
-          [:span
-           [icon :done]]]])]]))
+          [:span [icon :done]]]])]]))
 
 (def game-mode->str
   {:bento "BENTO"
    :capitu "CAPITU"})
 
 (defn title [{:keys [game-mode]}]
-  [:div.title
+  [:div.title.centered-div
    [:h1
     [:span {:on-click #(rf/dispatch [:switch-game-mode])}
      (game-mode->str game-mode)
@@ -86,7 +83,7 @@
     [title props]))
 
 (defn attempt-rows [{:keys [max-attempts]}]
-  [:div.attempt-rows
+  [:div.attempt-rows.centered-div
    (for [i (range max-attempts)]
      [attempt-row {:key i
                    :attempt-number i}])])
@@ -121,7 +118,7 @@
 
 (defn overlay [id content]
   (let [shown? @(rf/subscribe [:overlay-shown? id])]
-    [:div.overlay {:style {:left (if shown? "0%" "-110%")}}
+    [:div.overlay.centered-div {:style {:left (if shown? "0%" "-110%")}}
      [:div.overlay-content
       content]
      [:button.close-btn {:on-click #(rf/dispatch [:set-overlay-shown id false])}
