@@ -21,10 +21,7 @@
 (defn on-animation-ended [event]
   (case (.-animationName event)
     "reject-attempt" (-> event .-target (vh/remove-class "reject-attempt"))
-    "reveal-correct" (letter-revealed event)
-    "reveal-misplaced" (letter-revealed event)
-    "reveal-wrong" (letter-revealed event)
-
+    "reveal-letter" (letter-revealed event)
     nil)
 
   (.preventDefault event))

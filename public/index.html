@@ -216,40 +216,42 @@
       border-bottom: 6px solid var(--primary);
     }
 
+    @keyframes reveal-letter {
+      0% {
+        transform: rotateX(0deg);
+        background-color: var(--from-bg, var(--letter-bg));
+        color: var(--from-fg, var(--letter-fg));
+      }
+
+      50% {
+        transform: rotateX(90deg);
+        background-color: var(--from-bg, var(--letter-bg));
+        color: var(--from-fg, var(--letter-fg));
+      }
+
+      51% {
+        transform: rotateX(90deg);
+        background-color: var(--to-bg);
+        color: var(--to-fg, var(--letter-fg));
+      }
+
+      100% {
+        transform: rotateX(0deg);
+        background-color: var(--to-bg);
+        color: var(--to-fg, var(--letter-fg));
+      }
+    }
+
     .correct {
       background-color: var(--correct);
       color: var(--white);
     }
 
-    @keyframes reveal-correct {
-      0% {
-        transform: rotateX(0deg);
-        background-color: var(--letter-bg);
-        color: var(--letter-fg);
-      }
-
-      50% {
-        transform: rotateX(90deg);
-        background-color: var(--letter-bg);
-        color: var(--letter-fg);
-      }
-
-      51% {
-        transform: rotateX(90deg);
-        background-color: var(--correct);
-        color: var(--white);
-      }
-
-      100% {
-        transform: rotateX(0deg);
-        background-color: var(--correct);
-        color: var(--white);
-      }
-    }
-
     .reveal-correct {
+      --to-bg: var(--correct);
+      --to-fg: var(--white);
+      animation-name: reveal-letter;
       animation-duration: 500ms;
-      animation-name: reveal-correct;
       animation-iteration-count: 1;
       animation-timing-function: linear;
       animation-fill-mode: forwards;
@@ -260,31 +262,10 @@
       color: var(--letter-fg);
     }
 
-    @keyframes reveal-wrong {
-      0% {
-        transform: rotateX(0deg);
-        background-color: var(--letter-bg);
-      }
-
-      50% {
-        transform: rotateX(90deg);
-        background-color: var(--letter-bg);
-      }
-
-      51% {
-        transform: rotateX(90deg);
-        background-color: var(--wrong);
-      }
-
-      100% {
-        transform: rotateX(0deg);
-        background-color: var(--wrong);
-      }
-    }
-
     .reveal-wrong {
+      --to-bg: var(--wrong);
+      animation-name: reveal-letter;
       animation-duration: 500ms;
-      animation-name: reveal-wrong;
       animation-iteration-count: 1;
       animation-timing-function: linear;
       animation-fill-mode: forwards;
@@ -295,59 +276,38 @@
       color: var(--letter-fg);
     }
 
-    @keyframes reveal-misplaced {
-      0% {
-        transform: rotateX(0deg);
-        background-color: var(--letter-bg);
-      }
-
-      50% {
-        transform: rotateX(90deg);
-        background-color: var(--letter-bg);
-      }
-
-      51% {
-        transform: rotateX(90deg);
-        background-color: var(--misplaced);
-      }
-
-      100% {
-        transform: rotateX(0deg);
-        background-color: var(--misplaced);
-      }
-    }
-
     .reveal-misplaced {
+      --to-bg: var(--misplaced);
+      animation-name: reveal-letter;
       animation-duration: 500ms;
-      animation-name: reveal-misplaced;
       animation-iteration-count: 1;
       animation-timing-function: linear;
       animation-fill-mode: forwards;
     }
 
     @keyframes reject-attempt {
-      0% {
-        transform: translateX(0px);
+      10%, 90% {
+        transform: translateX(-2px);
       }
 
-      25% {
-        transform: translateX(16px);
+      20%, 80% {
+        transform: translateX(4px);
       }
 
-      50% {
-        transform: translateX(-16px);
+      30%, 50%, 70% {
+        transform: translateX(-8px);
       }
 
-      100% {
-        transform: translateX(0px);
+      40%, 60% {
+        transform: translateX(8px);
       }
     }
 
     .reject-attempt {
-      animation-duration: 250ms;
+      animation-duration: 0.8s;
       animation-name: reject-attempt;
       animation-iteration-count: 1;
-      animation-timing-function: ease;
+      animation-timing-function: cubic-bezier(.36,.07,.19,.97);
     }
 
     @keyframes last-added-letter {
