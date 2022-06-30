@@ -1,5 +1,6 @@
 (ns main.subs
-  (:require [re-frame.core :as rf]))
+  (:require [main.logic :as l]
+            [re-frame.core :as rf]))
 
 ;; Extractors
 
@@ -152,3 +153,33 @@
       :total-games-played (:total-games-played stats 0)
       :total-wins (:total-wins stats 0)
       :attempts-distribution distribution})))
+
+(def ^:private game-over-buttons
+  [{:icon-name :leaderboard :code :show-stats :key :show-stats}
+   {:icon-name :swap_horiz :code :switch-game-mode :key :switch-game-mode}
+   {:icon-name :refresh :code :new-game :key :new-game}])
+
+(def ^:private game-on-buttons
+  [{:icon-name :backspace :code :delete :key :delete}
+   {:icon-name :swap_horiz :code :switch-game-mode :key :switch-game-mode}
+   {:icon-name :done :code :check :key :check}])
+
+(rf/reg-sub
+ :keyboard-info
+ (fn [_ _]
+   {:used-letters (rf/subscribe [:used-letters])
+    :game-over? (rf/subscribe [:game-over?])})
+ (fn [{:keys [used-letters game-over?]} _]
+   (let [{:keys [game-over?]} game-over?
+         ->buttons-props-fn (partial map #(l/letter->button-props % used-letters))
+         rows [(->buttons-props-fn ["Q" "W" "E" "R" "T" "Y" "U" "I" "O" "P"])
+               (->buttons-props-fn ["A" "S" "D" "F" "G" "H" "J" "K" "L"])
+               (->buttons-props-fn ["Z" "X" "C" "V" "B" "N" "M"])
+               (if game-over?
+                 game-over-buttons
+                 game-on-buttons)]
+         rows-with-props (->> rows
+                              (map-indexed (fn [idx row]
+                                             {:key (str "button-row-" idx)
+                                              :row row})))]
+     {:rows rows-with-props})))

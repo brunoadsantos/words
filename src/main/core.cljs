@@ -4,7 +4,7 @@
             [main.events]
             [main.ga-effects]
             [main.subs]
-            [main.view-helper :as vh]
+            [main.utils :as utils]
             [main.views]
             [re-frame.core :as rf]
             [reagent.dom :as rdom]))
@@ -20,7 +20,7 @@
 
 (defn on-animation-ended [event]
   (case (.-animationName event)
-    "reject-attempt" (-> event .-target (vh/remove-class "reject-attempt"))
+    "reject-attempt" (-> event .-target (utils/remove-class "reject-attempt"))
     "reveal-letter" (letter-revealed event)
     nil)
 
@@ -45,6 +45,7 @@
    [main.views/app]
    (.getElementById js/document "app")))
 
+#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn ^:dev/after-load clear-cache-and-render! []
   (rf/clear-subscription-cache!)
   (render))

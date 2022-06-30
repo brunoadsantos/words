@@ -18,61 +18,28 @@
     [:div.centered-div {:key id :id id}
      (map letter-slot row)]))
 
-(defn button [{:keys [code text status]}]
-  [:button.keyboard-btn {:on-click #(rf/dispatch [:key-input code])}
-   [:span {:class (some-> status name)}
-    (str text)]])
-
-(defn button-row [row {:keys [correct-letters wrong-letters misplaced-letters]}]
-  [:div.centered-div.button-row
-   (->> row
-        (map (fn [text-or-code]
-               (let [text (cond-> text-or-code
-                            (map? text-or-code) :text
-                            :always str)]
-                 {:key text
-                  :text text
-                  :code (cond-> text-or-code
-                          (map? text-or-code) :code
-                          :always str)
-                  :status (condp get text
-                            correct-letters :correct
-                            misplaced-letters :misplaced
-                            wrong-letters :wrong
-                            nil)})))
-        (map (partial vector button)))])
-
 (defn icon [icon-name]
   [:span.material-symbols-outlined
    (name icon-name)])
 
-(defn keyboard []
-  (let [used-letters @(rf/subscribe [:used-letters])
-        revealing? @(rf/subscribe [:revealing?])
-        {:keys [game-over?]} @(rf/subscribe [:game-over?])]
-    [:div.keyboard
-     [button-row ["Q" "W" "E" "R" "T" "Y" "U" "I" "O" "P"] used-letters]
-     [button-row ["A" "S" "D" "F" "G" "H" "J" "K" "L"] used-letters]
-     [button-row ["Z" "X" "C" "V" "B" "N" "M"] used-letters]
+(defn button [{:keys [code text icon-name status]}]
+  [(if icon-name
+     :button.keyboard-btn.control
+     :button.keyboard-btn) {:on-click #(rf/dispatch [:key-input code])}
+   (if icon-name
+     [:span [icon icon-name]]
+     [:span {:class (some-> status name)}
+      (str text)])])
 
-     [:div.centered-div.button-row
-      (if game-over?
-        [:<>
-         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:set-overlay-shown :stats true])}
-          [:span [icon :leaderboard]]]
-         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:switch-game-mode])}
-          [:span [icon :swap_horiz]]]
-         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:new-game {:force-new? true}])}
-          [:span [icon :refresh]]]]
-        [:<>
-         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:key-input :delete])
-                                        :disabled revealing?}
-          [:span [icon :backspace]]]
-         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:switch-game-mode])}
-          [:span [icon :swap_horiz]]]
-         [:button.control.keyboard-btn {:on-click #(rf/dispatch [:key-input :check])
-                                        :disabled revealing?}
-          [:span [icon :done]]]])]]))
+(defn button-row
+  [{:keys [row]}]
+  [:div.centered-div.button-row
+   (map (partial vector button) row)])
+
+(defn keyboard []
+  (let [{:keys [rows]} @(rf/subscribe [:keyboard-info])]
+    [:div.keyboard
+     (map (partial vector button-row) rows)]))
 
 (def game-mode->str
   {:bento "BENTO"

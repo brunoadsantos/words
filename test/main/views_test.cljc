@@ -1,6 +1,7 @@
 (ns main.views-test
   (:require #?@(:clj  [[clojure.test :refer [deftest is]]]
                 :cljs [[cljs.test :refer [deftest is]]])
+            [main.logic :as l]
             [main.views :as v]
             [matcher-combinators.matchers :as m]
             [matcher-combinators.standalone :refer [match?]]))
@@ -54,7 +55,15 @@
   (is (match? [:button.keyboard-btn {:on-click fn?}
                [:span {:class "correct"} "A"]]
               (v/button {:text "A" :code :a
-                         :status :correct}))))
+                         :status :correct})))
+  (is (match? [:button.keyboard-btn.control {:on-click fn?}
+               [:span [(m/equals v/icon) :some-icon]]]
+              (v/button {:icon-name :some-icon
+                         :code :some-code}))))
+
+(defn ^:private letters->row-props [letters used-letters]
+  {:key "row"
+   :row (map (fn [letter] (l/letter->button-props (str letter) used-letters)) letters)})
 
 (deftest button-row
   (is (match? [:div.centered-div.button-row
@@ -70,7 +79,7 @@
                                       :text "C"
                                       :code "C"
                                       :status nil}]]]
-              (v/button-row "ABC" {})))
+              (v/button-row (letters->row-props "ABC" {}))))
   (is (match? [:div.centered-div.button-row
                [[(m/equals v/button) {:text "A"
                                       :status :wrong}]
@@ -78,7 +87,7 @@
                                       :status nil}]
                 [(m/equals v/button) {:text "C"
                                       :status nil}]]]
-              (v/button-row "ABC" {:wrong-letters #{"A"}})))
+              (v/button-row (letters->row-props "ABC" {:wrong-letters #{"A"}}))))
   (is (match? [:div.centered-div.button-row
                [[(m/equals v/button) {:text "A"
                                       :status :misplaced}]
@@ -86,8 +95,8 @@
                                       :status nil}]
                 [(m/equals v/button) {:text "C"
                                       :status nil}]]]
-              (v/button-row "ABC" {:wrong-letters #{"A"}
-                                   :misplaced-letters #{"A"}})))
+              (v/button-row (letters->row-props "ABC" {:wrong-letters #{"A"}
+                                                       :misplaced-letters #{"A"}}))))
   (is (match? [:div.centered-div.button-row
                [[(m/equals v/button) {:text "A"
                                       :status :correct}]
@@ -95,9 +104,9 @@
                                       :status nil}]
                 [(m/equals v/button) {:text "C"
                                       :status nil}]]]
-              (v/button-row "ABC" {:wrong-letters #{"A"}
-                                   :misplaced-letters #{"A"}
-                                   :correct-letters #{"A"}})))
+              (v/button-row (letters->row-props "ABC" {:wrong-letters #{"A"}
+                                                       :misplaced-letters #{"A"}
+                                                       :correct-letters #{"A"}}))))
   (is (match? [:div.centered-div.button-row
                [[(m/equals v/button) {:text "A"
                                       :status :wrong}]
@@ -105,9 +114,9 @@
                                       :status :misplaced}]
                 [(m/equals v/button) {:text "C"
                                       :status :correct}]]]
-              (v/button-row "ABC" {:wrong-letters #{"A"}
-                                   :misplaced-letters #{"B"}
-                                   :correct-letters #{"C"}}))))
+              (v/button-row (letters->row-props "ABC" {:wrong-letters #{"A"}
+                                                       :misplaced-letters #{"B"}
+                                                       :correct-letters #{"C"}})))))
 
 (deftest title
   (is (match? [:div.title.centered-div [:h1 [:span {} "BENTO" [:sub [(m/equals v/icon) :swap_horiz]]]]]

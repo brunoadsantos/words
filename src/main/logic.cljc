@@ -114,3 +114,16 @@
                  (cond-> remaining
                    (= result :misplaced) (update l1 dec))))
         results))))
+
+(defn ^:private letter-status [letter {:keys [correct-letters wrong-letters misplaced-letters]}]
+  (condp get letter
+    correct-letters :correct
+    misplaced-letters :misplaced
+    wrong-letters :wrong
+    nil))
+
+(defn letter->button-props [l used-letters]
+  {:text l
+   :code l
+   :key l
+   :status (letter-status l used-letters)})

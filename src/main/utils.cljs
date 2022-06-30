@@ -1,4 +1,4 @@
-(ns main.view-helper)
+(ns main.utils)
 
 (defn add-class [elem class-name]
   (some-> elem .-classList (.add class-name))

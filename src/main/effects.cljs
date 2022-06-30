@@ -1,7 +1,7 @@
 (ns main.effects
   (:require [alandipert.storage-atom :as sa]
             [clojure.string :as str]
-            [main.view-helper :as vh]
+            [main.utils :as utils]
             [re-frame.core :as rf]))
 
 (def letter-result->reveal-class
@@ -16,7 +16,7 @@
      (->> (map-indexed
            (fn [idx [div letter-result]]
              (js/setTimeout
-              #(vh/add-class div (letter-result->reveal-class letter-result))
+              #(utils/add-class div (letter-result->reveal-class letter-result))
               (* idx 250)))
            (map vector divs letter-results))
           doall))))
@@ -25,7 +25,7 @@
  :reject-attempt
  (fn [{:keys [attempt-number attempt]}]
    (when (seq attempt)
-     (vh/add-class (.getElementById js/document (str "row" attempt-number)) "reject-attempt"))))
+     (utils/add-class (.getElementById js/document (str "row" attempt-number)) "reject-attempt"))))
 
 (rf/reg-cofx
  :game-mode-from-url
