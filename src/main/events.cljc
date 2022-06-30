@@ -4,9 +4,6 @@
    [main.logic :as l]
    [re-frame.core :as rf]))
 
-(defn persistable-state [db]
-  (dissoc db :word-map :valid-attempts :game-mode :overlays))
-
 (rf/reg-event-fx
  :new-game
  [(rf/inject-cofx :game-mode-from-url)
@@ -14,12 +11,14 @@
  (fn [{:keys [db game-mode-from-url saved-game-state]} [_ {:keys [game-mode force-new?]}]]
    (let [game-mode (or game-mode (:game-mode db) game-mode-from-url)
          game-state (get saved-game-state game-mode)
+         prefs (:prefs saved-game-state)
          new-game (merge (db/new-game {:game-mode game-mode
                                        :game-state (when-not force-new? game-state)})
-                         (select-keys game-state [:stats]))]
+                         (select-keys game-state [:stats])
+                         {:prefs prefs})]
      (cond-> {:db new-game
               :save-game-state {:game-mode game-mode
-                                :game-state (persistable-state new-game)}}
+                                :game-state new-game}}
        (or (not game-state) force-new?)
        (assoc :ga-event {:event-name "new-game"
                          :event-params {:game-mode game-mode}})))))
@@ -47,7 +46,7 @@
                         (l/check-game-over))]
      (cond-> {:db updated-db
               :save-game-state {:game-mode (:game-mode updated-db)
-                                :game-state (persistable-state updated-db)}}
+                                :game-state updated-db}}
        (:game-over? updated-db)
        (assoc :ga-event {:event-name "game-complete"
                          :event-params {:game-mode (:game-mode updated-db)
@@ -76,7 +75,8 @@
  :key-input
  (fn [{:keys [db]} [_ k]]
    (when-not (:revealing? db)
-     (let [fx (if (:game-over? db)
+     (let [vibrate? (get-in db [:prefs :vibrate?] true)
+           fx (if (:game-over? db)
                 (case k
                   :show-stats {:fx [[:dispatch [:set-overlay-shown :stats true]]]}
                   :switch-game-mode {:fx [[:dispatch [:switch-game-mode]]]}
@@ -88,12 +88,13 @@
                              {:db (l/add-valid-attempt db)
                               :fx [[:dispatch [:reveal-attempt attempt-number]]]}
                              {:reject-attempt {:attempt-number attempt-number
-                                               :attempt (get-in db [:attempts attempt-number :attempt])}}))
+                                               :attempt (get-in db [:attempts attempt-number :attempt])
+                                               :vibrate? vibrate?}}))
                   :delete {:db (l/pop-from-current-attempt db)}
                   :switch-game-mode {:fx [[:dispatch [:switch-game-mode]]]}
                   {:db (l/push-to-current-attempt db k)}))]
        (merge {:vibrate {:pattern :key-input
-                         :vibrate? (empty? (get-in fx [:reject-attempt :attempt]))}}
+                         :vibrate? (and vibrate? (empty? (get-in fx [:reject-attempt :attempt])))}}
               fx)))))
 
 (rf/reg-event-fx
@@ -103,3 +104,10 @@
      shown?
      (assoc :ga-event {:event-name "overlay-shown"
                        :event-params {:overlay-id overlay-id}}))))
+
+(rf/reg-event-fx
+ :set-pref
+ (fn [{:keys [db]} [_ pref-id value]]
+   (let [updated-db (assoc-in db [:prefs pref-id] value)]
+     {:db updated-db
+      :save-prefs {:prefs (:prefs updated-db)}})))

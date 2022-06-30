@@ -74,7 +74,8 @@
          current-attempt (rf/subscribe [:current-attempt])
          attempt-0 (rf/subscribe [:display-attempt-n 0])
          attempt-row-0 (rf/subscribe [:attempt-row-n 0])
-         attempt-row-1 (rf/subscribe [:attempt-row-n 1])]
+         attempt-row-1 (rf/subscribe [:attempt-row-n 1])
+         prefs (rf/subscribe [:prefs])]
      (testing "Starting new game in default (bento) mode"
        (rf/dispatch [:new-game])
        (check-new-game! :bento))
@@ -195,10 +196,17 @@
                                                :number-of-wins 1
                                                :fraction 1}]}))
 
+     (testing "Store fake pref"
+       (rf/dispatch [:set-pref :some-pref 123])
+       (is (= 123 (get @prefs :some-pref))))
+
      (testing "Re-stub coeffects to simulate persisted state (clj only) and start new game"
        (stub-cofxs {:bento @rf-db/app-db})
        (rf/dispatch [:new-game {:force-new? true}])
        (check-new-game! :bento))
+
+     #?(:cljs (testing "Pref is kept in new game"
+                (is (= 123 (get @prefs :some-pref)))))
 
      (testing "Use all attempts with wrong word to end game"
        (run! (fn [_]
@@ -217,6 +225,9 @@
      (testing "Full game run on capitu mode"
        (rf/dispatch [:switch-game-mode])
        (check-new-game! :capitu)
+
+       #?(:cljs (testing "Pref is kept in new game mode"
+                  (is (= 123 (get @prefs :some-pref)))))
 
        (run! (fn [_]
                (input-keys! (if (= @answer "CAPITU") "PALIDO" "CAPITU"))

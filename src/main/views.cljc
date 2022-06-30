@@ -102,6 +102,14 @@
 #?(:cljs (goog-define VERSION "dev")
    :clj (def VERSION "dev"))
 
+(defn boolean-pref-checkbox [{:keys [pref-id label]}]
+  [:p
+   [:input {:id (name pref-id)
+            :type "checkbox"
+            :checked (boolean (get @(rf/subscribe [:prefs]) pref-id true))
+            :on-change (fn [e] (rf/dispatch [:set-pref pref-id (-> e .-target .-checked)]))}]
+   [:label {:for (name pref-id)} label]])
+
 (defn about []
   [:<>
    [:h1 "Bento & Capitu"]
@@ -120,6 +128,8 @@
    [:p "No modo " [:b "Capitu"] ", as palavras têm " [:b "6 letras"] " e as tentativas são " [:b "restritas ao conteúdo do livro "] [:em "Dom Casmurro"] "."]
    [:p "Toque ou clique no título da página para alternar entre os modos. O progresso em cada um deles é mantido."]
    [:p "O jogo funciona offline e pode ser instalado como um app pelo menu do navegador."]
+   [:h3 "Configurações"]
+   [boolean-pref-checkbox {:pref-id :vibrate? :label "Feedback com vibração"}]
    [:p [:a {:href "https://github.com/brunoadsantos/words"} "Código no GitHub"]]
    [:p [:a {:href "https://machado.mec.gov.br/obra-completa-lista/itemlist/category/23-romance"}
         "Obra de Machado de Assis em domínio público"]]

@@ -27,9 +27,9 @@
 
 (rf/reg-fx
  :reject-attempt
- (fn [{:keys [attempt-number attempt]}]
+ (fn [{:keys [attempt-number attempt vibrate?]}]
    (when (seq attempt)
-     (when js/navigator.vibrate
+     (when (and vibrate? js/navigator.vibrate)
        (js/navigator.vibrate (pattern->js-pattern :reject-attempt)))
      (utils/add-class (.getElementById js/document (str "row" attempt-number)) "reject-attempt"))))
 
@@ -55,9 +55,17 @@
 (def local-storage (sa/local-storage (atom {}) :game-state))
 
 (rf/reg-fx
+ :save-prefs
+ (fn [{:keys [prefs]}]
+   (swap! local-storage assoc :prefs prefs)))
+
+(defn ^:private persistable-state [db]
+  (dissoc db :word-map :valid-attempts :game-mode :overlays :prefs))
+
+(rf/reg-fx
  :save-game-state
  (fn [{:keys [game-mode game-state]}]
-   (swap! local-storage assoc game-mode game-state)))
+   (swap! local-storage assoc game-mode (persistable-state game-state))))
 
 (rf/reg-cofx
  :saved-game-state

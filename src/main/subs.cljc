@@ -50,6 +50,11 @@
    (:stats db)))
 
 (rf/reg-sub
+ :prefs
+ (fn [db _]
+   (:prefs db)))
+
+(rf/reg-sub
  :used-letters
  (fn [db _]
    (-> db (select-keys [:correct-letters :wrong-letters :misplaced-letters]))))
