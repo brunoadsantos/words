@@ -21,10 +21,16 @@
            (map vector divs letter-results))
           doall))))
 
+(def ^:private pattern->js-pattern
+  {:key-input (clj->js [10])
+   :reject-attempt (clj->js [150 100 150 100 150])})
+
 (rf/reg-fx
  :reject-attempt
  (fn [{:keys [attempt-number attempt]}]
    (when (seq attempt)
+     (when js/navigator.vibrate
+       (js/navigator.vibrate (pattern->js-pattern :reject-attempt)))
      (utils/add-class (.getElementById js/document (str "row" attempt-number)) "reject-attempt"))))
 
 (rf/reg-cofx
@@ -37,6 +43,12 @@
                            str/lower-case)]
      (assoc cofx
             :game-mode-from-url (if (= "capitu" location-hash) :capitu :bento)))))
+
+(rf/reg-fx
+ :vibrate
+ (fn [{:keys [pattern vibrate?]}]
+   (when (and vibrate? js/navigator.vibrate)
+     (js/navigator.vibrate (pattern->js-pattern pattern)))))
 
 ;;; LOCAL STORAGE
 

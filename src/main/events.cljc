@@ -76,22 +76,25 @@
  :key-input
  (fn [{:keys [db]} [_ k]]
    (when-not (:revealing? db)
-     (if (:game-over? db)
-       (case k
-         :show-stats {:fx [[:dispatch [:set-overlay-shown :stats true]]]}
-         :switch-game-mode {:fx [[:dispatch [:switch-game-mode]]]}
-         :new-game {:fx [[:dispatch [:new-game {:force-new? true}]]]}
-         nil)
-       (case k
-         :check (let [attempt-number (:attempt-number db)]
-                  (if (l/valid-current-attempt? db)
-                    {:db (l/add-valid-attempt db)
-                     :fx [[:dispatch [:reveal-attempt attempt-number]]]}
-                    {:reject-attempt {:attempt-number attempt-number
-                                      :attempt (get-in db [:attempts attempt-number :attempt])}}))
-         :delete {:db (l/pop-from-current-attempt db)}
-         :switch-game-mode {:fx [[:dispatch [:switch-game-mode]]]}
-         {:db (l/push-to-current-attempt db k)})))))
+     (let [fx (if (:game-over? db)
+                (case k
+                  :show-stats {:fx [[:dispatch [:set-overlay-shown :stats true]]]}
+                  :switch-game-mode {:fx [[:dispatch [:switch-game-mode]]]}
+                  :new-game {:fx [[:dispatch [:new-game {:force-new? true}]]]}
+                  nil)
+                (case k
+                  :check (let [attempt-number (:attempt-number db)]
+                           (if (l/valid-current-attempt? db)
+                             {:db (l/add-valid-attempt db)
+                              :fx [[:dispatch [:reveal-attempt attempt-number]]]}
+                             {:reject-attempt {:attempt-number attempt-number
+                                               :attempt (get-in db [:attempts attempt-number :attempt])}}))
+                  :delete {:db (l/pop-from-current-attempt db)}
+                  :switch-game-mode {:fx [[:dispatch [:switch-game-mode]]]}
+                  {:db (l/push-to-current-attempt db k)}))]
+       (merge {:vibrate {:pattern :key-input
+                         :vibrate? (empty? (get-in fx [:reject-attempt :attempt]))}}
+              fx)))))
 
 (rf/reg-event-fx
  :set-overlay-shown
