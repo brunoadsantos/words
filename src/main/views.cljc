@@ -16,7 +16,7 @@
   (let [row @(rf/subscribe [:attempt-row-n attempt-number])
         id (str "row" attempt-number)]
     [:div.centered-div {:key id :id id}
-     (map letter-slot row)]))
+     (map (partial vector letter-slot) row)]))
 
 (defn icon [icon-name]
   [:span.material-symbols-outlined

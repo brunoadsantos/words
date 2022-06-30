@@ -113,6 +113,7 @@
      (->> letter-results
           (map-indexed (fn [idx result]
                          {:idx idx
+                          :key (str idx)
                           :result result
                           :current? (= idx current-attempt-size)
                           :current-row? (= n current-attempt)
