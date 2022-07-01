@@ -4,55 +4,32 @@
 
 ;; Extractors
 
-(rf/reg-sub
- :game-mode
- (fn [db _]
-   (:game-mode db)))
+(defn ^:private db->sub [kw]
+  (rf/reg-sub kw :-> kw))
+
+(db->sub :game-mode)
+
+(db->sub :answer)
+
+(db->sub :final-answer)
+
+(db->sub :revealing?)
+
+(db->sub :max-attempts)
+
+(db->sub :last-letter-position-added)
+
+(db->sub :stats)
+
+(db->sub :prefs)
 
 (rf/reg-sub
- :answer
- (fn [db _]
-   (:answer db)))
-
-(rf/reg-sub
- :final-answer
- (fn [db _]
-   (:final-answer db)))
-
-(rf/reg-sub
- :revealing?
- (fn [db _]
-   (:revealing? db)))
-
-(rf/reg-sub
- :max-attempts
- (fn [db _]
-   (:max-attempts db)))
-
-(rf/reg-sub
- :current-attempt
- (fn [db _]
-   (:attempt-number db)))
-
-(rf/reg-sub
- :last-letter-position-added
- (fn [db _]
-   (:last-letter-position-added db)))
+ :current-attempt :-> :attempt-number)
 
 (rf/reg-sub
  :game-over?
  (fn [db _]
    (select-keys db [:game-over? :success?])))
-
-(rf/reg-sub
- :stats
- (fn [db _]
-   (:stats db)))
-
-(rf/reg-sub
- :prefs
- (fn [db _]
-   (:prefs db)))
 
 (rf/reg-sub
  :used-letters
@@ -89,10 +66,10 @@
 (rf/reg-sub
  :display-attempt-n
  (fn [[_ n] _]
-   {:attempt-n (rf/subscribe [:attempt-n n])
-    :valid-attempt-n (rf/subscribe [:valid-attempt-n n])
-    :answer (rf/subscribe [:answer])})
- (fn [{:keys [attempt-n valid-attempt-n answer]} _]
+   [(rf/subscribe [:attempt-n n])
+    (rf/subscribe [:valid-attempt-n n])
+    (rf/subscribe [:answer])])
+ (fn [[attempt-n valid-attempt-n answer] _]
    (let [answer-size (-> answer count)
          padding (->> attempt-n count (- answer-size))]
      (or (not-empty (map str valid-attempt-n))
@@ -101,12 +78,12 @@
 (rf/reg-sub
  :letter-details-n
  (fn [[_ n] _]
-   {:attempt-n (rf/subscribe [:attempt-n n])
-    :letter-results-n (rf/subscribe [:letter-results-n n])
-    :current-attempt (rf/subscribe [:current-attempt])
-    :answer (rf/subscribe [:answer])
-    :last-added (rf/subscribe [:last-letter-position-added])})
- (fn [{:keys [attempt-n answer current-attempt last-added letter-results-n]} [_ n]]
+   [(rf/subscribe [:attempt-n n])
+    (rf/subscribe [:letter-results-n n])
+    (rf/subscribe [:current-attempt])
+    (rf/subscribe [:answer])
+    (rf/subscribe [:last-letter-position-added])])
+ (fn [[attempt-n letter-results-n current-attempt answer last-added] [_ n]]
    (let [answer-size (-> answer count)
          letter-results (or (seq letter-results-n) (repeat answer-size :unchecked))
          current-attempt-size (->> attempt-n (remove empty?) count)]
@@ -122,9 +99,9 @@
 (rf/reg-sub
  :attempt-row-n
  (fn [[_ n] _]
-   {:display-attempt-n (rf/subscribe [:display-attempt-n n])
-    :letter-details-n (rf/subscribe [:letter-details-n n])})
- (fn [{:keys [display-attempt-n letter-details-n]} _]
+   [(rf/subscribe [:display-attempt-n n])
+    (rf/subscribe [:letter-details-n n])])
+ (fn [[display-attempt-n letter-details-n] _]
    (->> display-attempt-n
         (map (fn [l] {:letter l}))
         (map merge letter-details-n))))
@@ -140,11 +117,10 @@
 
 (rf/reg-sub
  :game-over-info
- (fn [_ _]
-   {:final-answer (rf/subscribe [:final-answer])
-    :game-over? (rf/subscribe [:game-over?])
-    :current-attempt (rf/subscribe [:current-attempt])})
- (fn [{:keys [final-answer game-over? current-attempt]} _]
+ :<- [:final-answer]
+ :<- [:game-over?]
+ :<- [:current-attempt]
+ (fn [[final-answer game-over? current-attempt] _]
    (let [{:keys [game-over? success?]} game-over?]
      (when game-over?
        {:message (if success?
@@ -153,11 +129,10 @@
 
 (rf/reg-sub
  :stats-info
- (fn [_ _]
-   {:stats (rf/subscribe [:stats])
-    :game-mode (rf/subscribe [:game-mode])
-    :max-attempts (rf/subscribe [:max-attempts])})
- (fn [{:keys [stats game-mode max-attempts]} _]
+ :<- [:stats]
+ :<- [:game-mode]
+ :<- [:max-attempts]
+ (fn [[stats game-mode max-attempts] _]
    (let [max-amount (->> stats :attempts-to-win vals (apply max 1))
          distribution (for [i (range max-attempts)
                             :let [i (inc i)
@@ -183,10 +158,9 @@
 
 (rf/reg-sub
  :keyboard-info
- (fn [_ _]
-   {:used-letters (rf/subscribe [:used-letters])
-    :game-over? (rf/subscribe [:game-over?])})
- (fn [{:keys [used-letters game-over?]} _]
+ :<- [:used-letters]
+ :<- [:game-over?]
+ (fn [[used-letters game-over?] _]
    (let [{:keys [game-over?]} game-over?
          ->buttons-props-fn (partial map #(l/letter->button-props % used-letters))
          rows [(->buttons-props-fn ["Q" "W" "E" "R" "T" "Y" "U" "I" "O" "P"])
