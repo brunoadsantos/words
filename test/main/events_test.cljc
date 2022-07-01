@@ -59,9 +59,9 @@
     (rf/dispatch [:letter-revealed (-> @answer count dec)])
     (is (not @revealing?))))
 
-(defn ^:private check-game-over! [{:keys [game-over? success?]}]
-  (let [game-over-info (rf/subscribe [:game-over-info])]
-    (is (match? {:game-over? game-over? :success? success?} @game-over-info))))
+(defn ^:private check-game-over! [{:keys [game-over?]}]
+  (let [{:keys [message]} @(rf/subscribe [:game-over-info])]
+    (is (if game-over? message (not message)))))
 
 (defn ^:private check-stats! [expected-stats]
   (let [stats-info (rf/subscribe [:stats-info])]
@@ -180,7 +180,7 @@
 
      (testing "Current attempt is increased but game is not over"
        (is (= 1 @current-attempt))
-       (check-game-over! {:game-over? false :success? false}))
+       (check-game-over! {:game-over? false}))
 
      (testing "Input and submit correct answer"
        (input-keys! @answer)
@@ -189,7 +189,7 @@
                               :current-row? true})
                    @attempt-row-1))
        (is (= 1 @current-attempt))
-       (check-game-over! {:game-over? true :success? true})
+       (check-game-over! {:game-over? true})
        (check-stats! {:total-games-played 1
                       :total-wins 1
                       :attempts-distribution [{:attempt-number 2
@@ -213,7 +213,7 @@
                (input-keys! (if (= @answer "BENTO") "CAMPO" "BENTO"))
                (submit-attempt!))
              (range 6))
-       (check-game-over! {:game-over? true :success? false}))
+       (check-game-over! {:game-over? true}))
 
      (testing "Stats should have accumulated from previous game in same mode"
        (check-stats! {:total-games-played 2
@@ -235,7 +235,7 @@
              (range 6))
 
        (is (= 5 @current-attempt))
-       (check-game-over! {:game-over? true :success? false})
+       (check-game-over! {:game-over? true})
        (check-stats! {:total-games-played 1
                       :total-wins 0
                       :attempts-distribution empty?})))))

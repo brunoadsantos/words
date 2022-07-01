@@ -129,6 +129,15 @@
         (map (fn [l] {:letter l}))
         (map merge letter-details-n))))
 
+(defn ^:private attempt-number->message [n]
+  (case n
+    0 "Ótimo chute!"
+    1 "Excelente!"
+    2 "Impressionante!"
+    3 "Ótimo!"
+    4 "Muito bem!"
+    "Ufa!"))
+
 (rf/reg-sub
  :game-over-info
  (fn [_ _]
@@ -136,9 +145,11 @@
     :game-over? (rf/subscribe [:game-over?])
     :current-attempt (rf/subscribe [:current-attempt])})
  (fn [{:keys [final-answer game-over? current-attempt]} _]
-   (merge game-over?
-          {:final-answer final-answer
-           :victory-attempt-number current-attempt})))
+   (let [{:keys [game-over? success?]} game-over?]
+     (when game-over?
+       {:message (if success?
+                   (attempt-number->message current-attempt)
+                   (str "Resposta: " final-answer))}))))
 
 (rf/reg-sub
  :stats-info

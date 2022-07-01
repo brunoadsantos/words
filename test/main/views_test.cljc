@@ -118,6 +118,10 @@
                                                        :misplaced-letters #{"B"}
                                                        :correct-letters #{"C"}})))))
 
+(deftest keyboard
+  (is (match? [:div.keyboard (repeat 5 [(m/equals v/button-row) {:some-prop 1}])]
+              (v/keyboard {:rows (repeat 5 {:some-prop 1})}))))
+
 (deftest title
   (is (match? [:div.title.centered-div [:h1 [:span {} "BENTO" [:sub [(m/equals v/icon) :swap_horiz]]]]]
               (v/title {:game-mode :bento})))
@@ -127,15 +131,5 @@
 (deftest game-over-alert
   (is (match? [:div.centered-div.game-over nil]
               (v/game-over-alert {})))
-  (is (match? [:div.centered-div.game-over vector?]
-              (v/game-over-alert {:game-over? true})))
-  (is (match? [:div.centered-div.game-over [:span.game-over-banner.pulse "Resposta: FINAL"]]
-              (v/game-over-alert {:game-over? true
-                                  :final-answer "FINAL"})))
-  (is (match? [:div.centered-div.game-over [:span.game-over-banner.pulse "Ufa!"]]
-              (v/game-over-alert {:game-over? true
-                                  :success? true})))
-  (is (match? [:div.centered-div.game-over [:span.game-over-banner.pulse "Muito bem!"]]
-              (v/game-over-alert {:game-over? true
-                                  :success? true
-                                  :victory-attempt-number 4}))))
+  (is (match? [:div.centered-div.game-over [:span.game-over-banner.pulse "some message"]]
+              (v/game-over-alert {:message "some message"}))))

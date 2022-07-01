@@ -36,10 +36,13 @@
   [:div.centered-div.button-row
    (map (partial vector button) row)])
 
-(defn keyboard []
-  (let [{:keys [rows]} @(rf/subscribe [:keyboard-info])]
-    [:div.keyboard
-     (map (partial vector button-row) rows)]))
+(defn keyboard [{:keys [rows]}]
+  [:div.keyboard
+   (map (partial vector button-row) rows)])
+
+(defn keyboard-container []
+  (let [props @(rf/subscribe [:keyboard-info])]
+    [keyboard props]))
 
 (def game-mode->str
   {:bento "BENTO"
@@ -66,19 +69,10 @@
   (let [props {:max-attempts @(rf/subscribe [:max-attempts])}]
     [attempt-rows props]))
 
-(defn game-over-alert [{:keys [final-answer victory-attempt-number game-over? success?]}]
+(defn game-over-alert [{:keys [message]}]
   [:div.centered-div.game-over
-   (when game-over?
-     [:span.game-over-banner.pulse
-      (if success?
-        (case victory-attempt-number
-          0 "Ótimo chute!"
-          1 "Excelente!"
-          2 "Impressionante!"
-          3 "Ótimo!"
-          4 "Muito bem!"
-          "Ufa!")
-        (str "Resposta: " final-answer))])])
+   (when message
+     [:span.game-over-banner.pulse message])])
 
 (defn game-over-alert-container []
   (let [props @(rf/subscribe [:game-over-info])]
@@ -177,7 +171,7 @@
    [title-container]
    [game-over-alert-container]
    [attempt-rows-container]
-   [keyboard]])
+   [keyboard-container]])
 
 (defn app []
   [body])
