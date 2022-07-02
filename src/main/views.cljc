@@ -69,10 +69,13 @@
   (let [props {:max-attempts @(rf/subscribe [:max-attempts])}]
     [attempt-rows props]))
 
-(defn game-over-alert [{:keys [message]}]
+(defn game-over-alert [{:keys [game-over? messages]}]
   [:div.centered-div.game-over
-   (when message
-     [:span.game-over-banner.pulse message])])
+   (if game-over?
+     [:h3.game-over-banner.pulse (first messages)]
+     [:<>
+      [:h3 (first messages)]
+      [:h4 (second messages)]])])
 
 (defn game-over-alert-container []
   (let [props @(rf/subscribe [:game-over-info])]

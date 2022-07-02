@@ -59,9 +59,9 @@
     (rf/dispatch [:letter-revealed (-> @answer count dec)])
     (is (not @revealing?))))
 
-(defn ^:private check-game-over! [{:keys [game-over?]}]
-  (let [{:keys [message]} @(rf/subscribe [:game-over-info])]
-    (is (if game-over? message (not message)))))
+(defn ^:private check-game-over! [expected]
+  (let [game-over-info @(rf/subscribe [:game-over-info])]
+    (is (match? expected game-over-info))))
 
 (defn ^:private check-stats! [expected-stats]
   (let [stats-info (rf/subscribe [:stats-info])]

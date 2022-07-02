@@ -120,12 +120,23 @@
  :<- [:final-answer]
  :<- [:game-over?]
  :<- [:current-attempt]
- (fn [[final-answer game-over? current-attempt] _]
+ :<- [:game-mode]
+ :<- [:max-attempts]
+ (fn [[final-answer game-over? current-attempt game-mode max-attempts] _]
    (let [{:keys [game-over? success?]} game-over?]
-     (when game-over?
-       {:message (if success?
-                   (attempt-number->message current-attempt)
-                   (str "Resposta: " final-answer))}))))
+     (if game-over?
+       {:game-over? true
+        :messages [(if success?
+                     (attempt-number->message current-attempt)
+                     (str "Resposta: " final-answer))]}
+       (let [attempts-left (- max-attempts current-attempt)
+             suffix (when (> attempts-left 1) "s")]
+         {:game-over? false
+          :messages [(str attempts-left " tentativa" suffix " restante" suffix)
+                     (case game-mode
+                       :bento "com palavras em geral"
+                       :capitu "com palavras de “Dom Casmurro”"
+                       nil)]})))))
 
 (rf/reg-sub
  :stats-info

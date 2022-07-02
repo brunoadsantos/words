@@ -129,7 +129,8 @@
               (v/title {:game-mode :capitu}))))
 
 (deftest game-over-alert
-  (is (match? [:div.centered-div.game-over nil]
-              (v/game-over-alert {})))
-  (is (match? [:div.centered-div.game-over [:span.game-over-banner.pulse "some message"]]
-              (v/game-over-alert {:message "some message"}))))
+  (is (match? [:div.centered-div.game-over [:<> [:h3 "m1"] [:h4 "m2"]]]
+              (v/game-over-alert {:messages ["m1" "m2"]})))
+  (is (match? [:div.centered-div.game-over [:h3.game-over-banner.pulse "some message"]]
+              (v/game-over-alert {:game-over? true
+                                  :messages ["some message"]}))))
