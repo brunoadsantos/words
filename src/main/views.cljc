@@ -82,19 +82,17 @@
     [game-over-alert props]))
 
 (defn indicator-line [line]
-  [:div {:style {:min-width "60%"
-                 :text-align :left
-                 :margin-left "8px"}}
+  [:div {:style {:margin-left "8px"}}
    line])
 
 (defn overlay [id content]
   (let [shown? @(rf/subscribe [:overlay-shown? id])]
-    [:div.overlay.centered-div {:style {:left (if shown? "0%" "-110%")}
-                                :on-click #(rf/dispatch [:set-overlay-shown id false])}
+    [(if shown? :div.overlay.centered-div.open :div.overlay.centered-div)
+     {:on-click #(rf/dispatch [:set-overlay-shown id false])}
      [:div.overlay-content {:on-click (fn [event] (.stopPropagation event))}
-      content]
-     [:button.close-btn {:on-click #(rf/dispatch [:set-overlay-shown id false])}
-      [:div [icon "close"]]]]))
+      [:button.close-btn {:on-click #(rf/dispatch [:set-overlay-shown id false])}
+       [:div [icon "close"]]]
+      content]]))
 
 #?(:cljs (goog-define VERSION "dev")
    :clj (def VERSION "dev"))
@@ -109,53 +107,54 @@
 
 (defn about []
   [:<>
-   [:h1 "Bento & Capitu"]
+   [:h3 "Como jogar"]
    [:p "Você tem 6 tentativas para adivinhar uma palavra aleatória retirada do livro " [:em "Dom Casmurro"]
     ", de Machado de Assis. Cada tentativa indicará:"]
-   [:div.centered-div
+   [:div.centered-div {:style {:justify-content "flex-start"}}
     [:div.letter.correct "A"]
     [indicator-line "Letra na posição correta"]]
-   [:div.centered-div
+   [:div.centered-div {:style {:justify-content "flex-start"}}
     [:div.letter.misplaced "A"]
     [indicator-line "Letra na posição incorreta"]]
-   [:div.centered-div
+   [:div.centered-div {:style {:justify-content "flex-start"}}
     [:div.letter.wrong "A"]
     [indicator-line "Letra não faz parte da palavra"]]
+   [:p "O jogo funciona offline e pode ser instalado como um app pelo menu do navegador."]
+   [:h3 "Modos de jogo"]
    [:p "No modo " [:b "Bento"] ", as palavras têm " [:b "5 letras"] " e as tentativas são " [:b "palavras em geral"] "."]
    [:p "No modo " [:b "Capitu"] ", as palavras têm " [:b "6 letras"] " e as tentativas são " [:b "restritas ao conteúdo do livro "] [:em "Dom Casmurro"] "."]
    [:p "Toque ou clique no título da página para alternar entre os modos. O progresso em cada um deles é mantido."]
-   [:p "O jogo funciona offline e pode ser instalado como um app pelo menu do navegador."]
    [:h3 "Configurações"]
-   [boolean-pref-checkbox {:pref-id :vibrate? :label "Feedback com vibração"}]
+   [boolean-pref-checkbox {:pref-id :vibrate? :label "Feedback com vibração (apenas Chrome para Android)"}]
+   [:h3 "Sobre"]
    [:p [:a {:href "https://github.com/brunoadsantos/words"} "Código no GitHub"]]
    [:p [:a {:href "https://machado.mec.gov.br/obra-completa-lista/itemlist/category/23-romance"}
         "Obra de Machado de Assis em domínio público"]]
    [:p [:small "Versão " [:em (subs VERSION 0 8)]]]])
 
 (defn bar [{:keys [attempt-number number-of-wins fraction]}]
-  (let [max-size 160
-        bar-size (* max-size fraction)]
+  (let [max-size 90
+        bar-size (max 3 (* max-size fraction))]
     [:div.bar {:key (str "bar" attempt-number)
-               :style {:width (str max-size "px")}}
-     [:div {:style {:width (str bar-size "px")}}
+               :style {:width (str max-size "%")}}
+     [:div {:style {:width (str bar-size "%")}}
       number-of-wins]]))
 
 (defn attempts-distribution-chart [attempts-distribution]
   (when (seq attempts-distribution)
     [:<>
-     [:h3 "Distribuição por número de tentativas"]
+     [:h3 "Vitórias por número de tentativas"]
      (for [{:keys [attempt-number] :as info} attempts-distribution]
        [:div.centered-div {:key (str attempt-number)}
         (str attempt-number)
         [bar info]])]))
 
 (defn stats []
-  (let [{:keys [game-mode total-games-played total-wins attempts-distribution]} @(rf/subscribe [:stats-info])]
+  (let [{:keys [total-games-played total-wins attempts-distribution]} @(rf/subscribe [:stats-info])]
     [:<>
-     [:h1 (game-mode->str game-mode)]
      [:h3 "Estatísticas"]
-     [:p "Jogos finalizados: " total-games-played]
-     [:p "Vitórias: " total-wins]
+     [:p "Vitórias: " [:b total-wins]]
+     [:p "Jogos finalizados: " [:b total-games-played]]
      [attempts-distribution-chart attempts-distribution]]))
 
 (defn overlay-trigger [id icon-name styling]

@@ -141,9 +141,8 @@
 (rf/reg-sub
  :stats-info
  :<- [:stats]
- :<- [:game-mode]
  :<- [:max-attempts]
- (fn [[stats game-mode max-attempts] _]
+ (fn [[stats max-attempts] _]
    (let [max-amount (->> stats :attempts-to-win vals (apply max 1))
          distribution (for [i (range max-attempts)
                             :let [i (inc i)
@@ -152,8 +151,7 @@
                         {:attempt-number i
                          :number-of-wins amount
                          :fraction (/ amount max-amount)})]
-     {:game-mode game-mode
-      :total-games-played (:total-games-played stats 0)
+     {:total-games-played (:total-games-played stats 0)
       :total-wins (:total-wins stats 0)
       :attempts-distribution distribution})))
 
