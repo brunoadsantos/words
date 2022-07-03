@@ -111,13 +111,13 @@
    [:p "Você tem 6 tentativas para adivinhar uma palavra aleatória retirada do livro " [:em "Dom Casmurro"]
     ", de Machado de Assis. Cada tentativa indicará:"]
    [:div.centered-div {:style {:justify-content "flex-start"}}
-    [:div.letter.correct "A"]
+    [letter-slot {:letter "A" :result :correct}]
     [indicator-line "Letra na posição correta"]]
    [:div.centered-div {:style {:justify-content "flex-start"}}
-    [:div.letter.misplaced "A"]
+    [letter-slot {:letter "A" :result :misplaced}]
     [indicator-line "Letra na posição incorreta"]]
    [:div.centered-div {:style {:justify-content "flex-start"}}
-    [:div.letter.wrong "A"]
+    [letter-slot {:letter "A" :result :wrong}]
     [indicator-line "Letra não faz parte da palavra"]]
    [:p "O jogo funciona offline e pode ser instalado como um app pelo menu do navegador."]
    [:h3 "Modos de jogo"]
@@ -131,6 +131,24 @@
    [:p [:a {:href "https://machado.mec.gov.br/obra-completa-lista/itemlist/category/23-romance"}
         "Obra de Machado de Assis em domínio público"]]
    [:p [:small "Versão " [:em (subs VERSION 0 8)]]]])
+
+(defn hints []
+  (let [{:keys [hint-letters available-hints]} @(rf/subscribe [:hints-info])]
+    [:<>
+     [:h3 "Dicas"]
+     [:p "Dicas disponíveis: " [:b available-hints]]
+     (if (pos? available-hints)
+       [:button {:style {:height "3em" :width "100%"}
+                 :on-click #(rf/dispatch [:get-hint])}
+        [:span "Revelar letra!"]]
+       [:p "Consiga mais vitórias para obter dicas!"])
+     [:p "As letras reveladas estarão em ordem alfabética, não necessarimente como aparecem na resposta."]
+     [:div.centered-div
+      (->> hint-letters
+           (map #(vector letter-slot {:key %
+                                      :letter %
+                                      :result :misplaced
+                                      :last-added? true})))]]))
 
 (defn bar [{:keys [attempt-number number-of-wins fraction]}]
   (let [max-size 90
@@ -168,6 +186,7 @@
   [:<>
    [overlay :about [about]]
    [overlay :stats [stats]]
+   [overlay :hints [hints]]
    [overlay-trigger :about :info {:left "8px"}]
    [overlay-trigger :stats :leaderboard {:right "8px"}]
    [title-container]

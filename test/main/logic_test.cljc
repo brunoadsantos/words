@@ -1,7 +1,8 @@
 (ns main.logic-test
   (:require #?@(:clj  [[clojure.test :refer [deftest is]]]
                 :cljs [[cljs.test :refer [deftest is]]])
-            [main.logic :as l]))
+            [main.logic :as l]
+            [matcher-combinators.standalone :refer [match?]]))
 
 (deftest get-word
   (let [words #{"ABC" "DEF"}
@@ -66,3 +67,39 @@
       (is (= #{"F" "A" "L" "S"} correct-letters))
       (is (= #{"S"} misplaced-letters))
       (is (= #{"O"} wrong-letters)))))
+
+(deftest get-hint
+  (let [db {:answer "FACIL"
+            :hints-points 1}]
+    (is (match? {:hint-letters not-empty
+                 :hints-points 0}
+                (l/get-hint db))))
+  (let [db {:answer "FACIL"
+            :hints-points 5}]
+    (is (match? {:hint-letters #{"F" "A" "C" "I" "L"}
+                 :misplaced-letters #{"F" "A" "C" "I" "L"}
+                 :hints-points 0}
+                (-> db
+                    (l/get-hint)
+                    (l/get-hint)
+                    (l/get-hint)
+                    (l/get-hint)
+                    (l/get-hint)))))
+  (let [db {:hints-points 0}]
+    (is (match? nil (l/get-hint db))))
+  (let [db {:answer "FACIL"
+            :correct-letters #{"F" "A" "C" "I" "L"}
+            :hints-points 1}]
+    (is (match? nil (l/get-hint db))))
+  (let [db {:answer "SALAS"
+            :correct-letters #{"S" "A" "L"}
+            :hints-points 1}]
+    (is (match? nil (l/get-hint db))))
+  (let [db {:answer "FACIL"
+            :correct-letters #{"F" "A"}
+            :misplaced-letters #{"C" "I"}
+            :hints-points 2}]
+    (is (match? {:hint-letters #{"L"}
+                 :misplaced-letters #{"C" "I" "L"}
+                 :hints-points 1}
+                (l/get-hint db)))))

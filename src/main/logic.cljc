@@ -69,12 +69,14 @@
               (update-in [:stats :total-games-played] (fnil inc 0))
               (cond-> success? (update-in [:stats :attempts-to-win attempt-number] (fnil inc 0))
                       success? (update-in [:stats :total-wins] (fnil inc 0))
+                      success? (update :hints-points (fnil inc 0))
                       (not success?) (assoc :final-answer (get-word db answer))))))))
 
 (def ^:private letter-result->db-kw
   {:correct :correct-letters
    :misplaced :misplaced-letters
-   :wrong :wrong-letters})
+   :wrong :wrong-letters
+   :hint :hint-letters})
 
 (defn ^:private collect-used-letter
   [db [letter result]]
@@ -127,3 +129,18 @@
    :code l
    :key l
    :status (letter-status l used-letters)})
+
+(defn get-hint [db]
+  (when (-> db (:hints-points 0) pos?)
+    (let [answer-seq (->> (:answer db) #?(:clj (map str)))
+          correct-letters (-> db :correct-letters set)
+          misplaced-letters (-> db :misplaced-letters set)
+          unknown-letters (->> answer-seq
+                               (remove correct-letters)
+                               (remove misplaced-letters))
+          hint (when (seq unknown-letters) (rand-nth unknown-letters))]
+      (when hint
+        (-> db
+            (update :hints-points dec)
+            (collect-used-letter [hint :misplaced])
+            (collect-used-letter [hint :hint]))))))

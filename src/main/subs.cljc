@@ -23,6 +23,11 @@
 
 (db->sub :prefs)
 
+(db->sub :hint-letters)
+
+(rf/reg-sub
+ :hints-points :-> #(:hints-points % 0))
+
 (rf/reg-sub
  :current-attempt :-> :attempt-number)
 
@@ -160,16 +165,17 @@
    {:icon-name :swap_horiz :code :switch-game-mode :key :switch-game-mode}
    {:icon-name :refresh :code :new-game :key :new-game}])
 
-(def ^:private game-on-buttons
+(defn ^:private game-on-buttons [hint-letters]
   [{:icon-name :backspace :code :delete :key :delete}
-   {:icon-name :swap_horiz :code :switch-game-mode :key :switch-game-mode}
+   {:icon-name (if (seq hint-letters) :tips_and_updates :lightbulb) :code :open-hint-dialog :key :open-hint-dialog}
    {:icon-name :done :code :check :key :check}])
 
 (rf/reg-sub
  :keyboard-info
  :<- [:used-letters]
  :<- [:game-over?]
- (fn [[used-letters game-over?] _]
+ :<- [:hint-letters]
+ (fn [[used-letters game-over? hint-letters] _]
    (let [{:keys [game-over?]} game-over?
          ->buttons-props-fn (partial map #(l/letter->button-props % used-letters))
          rows [(->buttons-props-fn ["Q" "W" "E" "R" "T" "Y" "U" "I" "O" "P"])
@@ -177,9 +183,17 @@
                (->buttons-props-fn ["Z" "X" "C" "V" "B" "N" "M"])
                (if game-over?
                  game-over-buttons
-                 game-on-buttons)]
+                 (game-on-buttons hint-letters))]
          rows-with-props (->> rows
                               (map-indexed (fn [idx row]
                                              {:key (str "button-row-" idx)
                                               :row row})))]
      {:rows rows-with-props})))
+
+(rf/reg-sub
+ :hints-info
+ :<- [:hint-letters]
+ :<- [:hints-points]
+ (fn [[hint-letters hints-points] _]
+   {:available-hints hints-points
+    :hint-letters (-> hint-letters sort)}))

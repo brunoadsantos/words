@@ -14,7 +14,7 @@
          prefs (:prefs saved-game-state)
          new-game (merge (db/new-game {:game-mode game-mode
                                        :game-state (when-not force-new? game-state)})
-                         (select-keys game-state [:stats])
+                         (select-keys game-state [:stats :hints-points])
                          {:prefs prefs})]
      (cond-> {:db new-game
               :save-game-state {:game-mode game-mode
@@ -91,7 +91,7 @@
                                                :attempt (get-in db [:attempts attempt-number :attempt])
                                                :vibrate? vibrate?}}))
                   :delete {:db (l/pop-from-current-attempt db)}
-                  :switch-game-mode {:fx [[:dispatch [:switch-game-mode]]]}
+                  :open-hint-dialog {:fx [[:dispatch [:set-overlay-shown :hints true]]]}
                   {:db (l/push-to-current-attempt db k)}))]
        (merge {:vibrate {:pattern :key-input
                          :vibrate? (and vibrate? (empty? (get-in fx [:reject-attempt :attempt])))}}
@@ -111,3 +111,11 @@
    (let [updated-db (assoc-in db [:prefs pref-id] value)]
      {:db updated-db
       :save-prefs {:prefs (:prefs updated-db)}})))
+
+(rf/reg-event-fx
+ :get-hint
+ (fn [{:keys [db]} _]
+   (when-let [updated-db (l/get-hint db)]
+     {:db updated-db
+      :save-game-state {:game-mode (:game-mode db)
+                        :game-state updated-db}})))
