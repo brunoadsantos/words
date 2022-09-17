@@ -14,7 +14,7 @@ jobs:
       - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@9.5
         with:
-          cli: 1.11.1.1139
+          cli: 1.11.1.1161
           clj-kondo: 2022.05.31
       - name: clj-kondo lint
         run: clj-kondo --lint src test
