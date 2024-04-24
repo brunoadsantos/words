@@ -10,7 +10,7 @@ jobs:
     needs: [tests, lint-and-format-check]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Prepare java
         uses: actions/setup-java@v3
         with:
